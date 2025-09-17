@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agendamentos - A partir de Hoje</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        .card-agendamento {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+        
+        .card-agendamento:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        
+        .card-agendamento h3 {
+            color: #2c3e50;
+            margin-top: 0;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .info-item {
+            display: flex;
+            align-items: center;
+        }
+        
+        .info-label {
+            font-weight: bold;
+            color: #34495e;
+            margin-right: 8px;
+            min-width: 80px;
+        }
+        
+        .status-agendado { 
+            color: #f39c12; 
+            font-weight: bold;
+        }
+        
+        .status-confirmado { 
+            color: #27ae60; 
+            font-weight: bold;
+        }
+        
+        .status-cancelado { 
+            color: #e74c3c; 
+            font-weight: bold;
+        }
+        
+        .observacoes {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-left: 4px solid #3498db;
+            margin-top: 15px;
+            border-radius: 0 4px 4px 0;
+        }
+        
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
+            background: white;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        
+        .error {
+            background-color: #ffe6e6;
+            color: #d63031;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #d63031;
+        }
+        
+        .refresh-btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-bottom: 20px;
+            transition: background-color 0.3s;
+        }
+        
+        .refresh-btn:hover {
+            background-color: #2980b9;
+        }
+        
+        .data-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 30px 0 10px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .data-titulo {
+            font-size: 1.4em;
+            font-weight: bold;
+            margin: 0;
+        }
+        
+        .pdf-btn {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+        
+        .pdf-btn:hover {
+            background-color: #c0392b;
+            transform: translateY(-1px);
+        }
+        
+        .agendamentos-do-dia {
+            margin-bottom: 40px;
+        }
+        
+        @media (max-width: 768px) {
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>📅 Agendamentos a partir de Hoje</h1>
+    
+    <button class="refresh-btn" onclick="carregarAgendamentos()">🔄 Atualizar Lista</button>
+    
+    <div id="listaAgendamentos">
+        <div class="loading">Carregando agendamentos...</div>
+    </div>
+
+    <!-- jsPDF para gerar PDFs -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <!-- Firebase SDK v10 -->
+    <script type="module">
+        // Importar Firebase SDK v10
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js';
+        import { getFirestore, collection, query, where, getDocs, orderBy } from 'https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js';
+
+        // Configuração do Firebase - Agenda Mr. Jack
+        const firebaseConfig = {
+            apiKey: "AIzaSyBaDBgoPIBCyG1IFAuvIpoJ26P88tTu6dQ",
+            authDomain: "agenda-mr-jack.firebaseapp.com",
+            projectId: "agenda-mr-jack",
+            storageBucket: "agenda-mr-jack.firebasestorage.app",
+            messagingSenderId: "792947416467",
+            appId: "1:792947416467:web:9c8aa1b17306bd4cef1c66",
+            measurementId: "G-XHKRJPSNJC"
+        };
+
+        // Inicializar Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Função para formatar data brasileira
+        function formatarDataBR(dataString) {
+            const [ano, mes, dia] = dataString.split('-');
+            return `${dia}/${mes}/${ano}`;
+        }
+
+        // Função para carregar agendamentos do Firebase
+        async function carregarAgendamentosFirebase() {
+            try {
+                // Data de hoje no formato YYYY-MM-DD
+                const hoje = new Date();
+                const hojeFormatado = hoje.toISOString().split('T')[0];
+                
+                console.log('Buscando agendamentos a partir de:', hojeFormatado);
+
+                const q = query(
+                    collection(db, 'agendamentos'),
+                    where('data', '>=', hojeFormatado),
+                    orderBy('data', 'asc'),
+                    orderBy('hora', 'asc')
+                );
+
+                const querySnapshot = await getDocs(q);
+                const agendamentos = [];
+
+                querySnapshot.forEach((doc) => {
+                    const dadosDoc = doc.data();
+                    agendamentos.push({
+                        id: doc.id,
+                        cliente: dadosDoc.cliente || 'Não informado',
+                        data: dadosDoc.data || '',
+                        funcionario: dadosDoc.funcionario || 'Não definido',
+                        hora: dadosDoc.hora || '',
+                        observacoes: dadosDoc.observacoes || '',
+                        servico: dadosDoc.servico || 'Não especificado',
+                        status: dadosDoc.status || 'agendado',
+                        telefone: dadosDoc.telefone || 'Não informado'
+                    });
+                });
+
+                console.log('Agendamentos encontrados:', agendamentos.length);
+                return agendamentos;
+
+            } catch (error) {
+                console.error('Erro ao carregar agendamentos:', error);
+                throw error;
+            }
+        }
+
+        // Função para agrupar agendamentos por data
+        function agruparPorData(agendamentos) {
+            const grupos = {};
+            
+            agendamentos.forEach(agendamento => {
+                const data = agendamento.data;
+                if (!grupos[data]) {
+                    grupos[data] = [];
+                }
+                grupos[data].push(agendamento);
+            });
+            
+            return grupos;
+        }
+
+        // Função para gerar PDF de um dia específico
+        function gerarPDFDoDia(data, agendamentos) {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // Configuração da fonte
+            doc.setFont('helvetica');
+            
+            // Cabeçalho
+            doc.setFontSize(20);
+            doc.setTextColor(40, 40, 40);
+            doc.text('AGENDAMENTOS - MR. JACK', 20, 25);
+            
+            // Data
+            doc.setFontSize(16);
+            doc.setTextColor(60, 60, 60);
+            const dataFormatada = formatarDataBR(data);
+            const diaSemana = new Date(data + 'T00:00:00').toLocaleDateString('pt-BR', { weekday: 'long' });
+            doc.text(`${diaSemana.toUpperCase()}, ${dataFormatada}`, 20, 35);
+            
+            // Linha separadora
+            doc.setDrawColor(52, 152, 219);
+            doc.setLineWidth(0.8);
+            doc.line(20, 40, 190, 40);
+            
+            let yPosition = 55;
+            
+            if (agendamentos.length === 0) {
+                doc.setFontSize(12);
+                doc.setTextColor(100, 100, 100);
+                doc.text('Nenhum agendamento para este dia.', 20, yPosition);
+            } else {
+                // Ordenar por hora
+                agendamentos.sort((a, b) => a.hora.localeCompare(b.hora));
+                
+                agendamentos.forEach((agendamento, index) => {
+                    // Verificar se precisa de nova página
+                    if (yPosition > 250) {
+                        doc.addPage();
+                        yPosition = 20;
+                    }
+                    
+                    // Box do agendamento
+                    doc.setFillColor(248, 249, 250);
+                    doc.roundedRect(15, yPosition - 5, 180, 45, 3, 3, 'F');
+                    
+                    // Número do agendamento
+                    doc.setFontSize(10);
+                    doc.setTextColor(100, 100, 100);
+                    doc.text(`#${index + 1}`, 20, yPosition);
+                    
+                    // Hora (destaque)
+                    doc.setFontSize(14);
+                    doc.setTextColor(231, 76, 60);
+                    doc.setFont('helvetica', 'bold');
+                    doc.text(agendamento.hora, 160, yPosition);
+                    
+                    // Nome do cliente
+                    doc.setFontSize(12);
+                    doc.setTextColor(40, 40, 40);
+                    doc.setFont('helvetica', 'bold');
+                    doc.text(`Cliente: ${agendamento.cliente}`, 20, yPosition + 8);
+                    
+                    // Informações secundárias
+                    doc.setFontSize(10);
+                    doc.setTextColor(60, 60, 60);
+                    doc.setFont('helvetica', 'normal');
+                    doc.text(`Funcionário: ${agendamento.funcionario}`, 20, yPosition + 16);
+                    doc.text(`Serviço: ${agendamento.servico}`, 20, yPosition + 24);
+                    doc.text(`Telefone: ${agendamento.telefone}`, 20, yPosition + 32);
+                    
+                    // Status
+                    doc.setFontSize(9);
+                    let statusColor;
+                    switch(agendamento.status.toLowerCase()) {
+                        case 'confirmado': statusColor = [39, 174, 96]; break;
+                        case 'cancelado': statusColor = [231, 76, 60]; break;
+                        default: statusColor = [243, 156, 18];
+                    }
+                    doc.setTextColor(statusColor[0], statusColor[1], statusColor[2]);
+                    doc.setFont('helvetica', 'bold');
+                    doc.text(`STATUS: ${agendamento.status.toUpperCase()}`, 120, yPosition + 16);
+                    
+                    // Observações (se houver)
+                    if (agendamento.observacoes && agendamento.observacoes.trim()) {
+                        doc.setFontSize(9);
+                        doc.setTextColor(80, 80, 80);
+                        doc.setFont('helvetica', 'italic');
+                        const obs = agendamento.observacoes.length > 50 ? 
+                                   agendamento.observacoes.substring(0, 50) + '...' : 
+                                   agendamento.observacoes;
+                        doc.text(`Obs: ${obs}`, 120, yPosition + 24);
+                    }
+                    
+                    yPosition += 55;
+                });
+                
+                // Resumo no final
+                yPosition += 10;
+                if (yPosition > 250) {
+                    doc.addPage();
+                    yPosition = 20;
+                }
+                
+                doc.setFillColor(52, 152, 219);
+                doc.roundedRect(15, yPosition, 180, 25, 3, 3, 'F');
+                
+                doc.setFontSize(12);
+                doc.setTextColor(255, 255, 255);
+                doc.setFont('helvetica', 'bold');
+                doc.text(`TOTAL DE AGENDAMENTOS: ${agendamentos.length}`, 20, yPosition + 8);
+                
+                // Contagem por status
+                const statusCount = agendamentos.reduce((acc, ag) => {
+                    acc[ag.status] = (acc[ag.status] || 0) + 1;
+                    return acc;
+                }, {});
+                
+                let statusText = '';
+                Object.entries(statusCount).forEach(([status, count]) => {
+                    statusText += `${status.toUpperCase()}: ${count}  `;
+                });
+                
+                doc.setFontSize(10);
+                doc.text(statusText, 20, yPosition + 16);
+            }
+            
+            // Rodapé
+            doc.setFontSize(8);
+            doc.setTextColor(150, 150, 150);
+            doc.text(`Gerado em: ${new Date().toLocaleString('pt-BR')}`, 20, 285);
+            
+            // Salvar o PDF
+            const nomeArquivo = `agendamentos_${data}_mr_jack.pdf`;
+            doc.save(nomeArquivo);
+        }
+
+        // Função para exibir agendamentos agrupados por data
+        function exibirAgendamentosAgrupados(agendamentos) {
+            const container = document.getElementById('listaAgendamentos');
+
+            if (agendamentos.length === 0) {
+                container.innerHTML = `
+                    <div class="no-results">
+                        <h3>😊 Nenhum agendamento encontrado</h3>
+                        <p>Não há agendamentos marcados a partir de hoje.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const gruposPorData = agruparPorData(agendamentos);
+            let html = '';
+            
+            // Ordenar as datas
+            const datasOrdenadas = Object.keys(gruposPorData).sort();
+            
+            datasOrdenadas.forEach(data => {
+                const agendamentosDoDia = gruposPorData[data];
+                const dataFormatada = formatarDataBR(data);
+                const diaSemana = new Date(data + 'T00:00:00').toLocaleDateString('pt-BR', { weekday: 'long' });
+                
+                html += `
+                    <div class="agendamentos-do-dia">
+                        <div class="data-header">
+                            <div>
+                                <h2 class="data-titulo">
+                                    📅 ${diaSemana.charAt(0).toUpperCase() + diaSemana.slice(1)}, ${dataFormatada}
+                                </h2>
+                                <p style="margin: 5px 0 0 0; opacity: 0.9;">${agendamentosDoDia.length} agendamento${agendamentosDoDia.length !== 1 ? 's' : ''}</p>
+                            </div>
+                            <button class="pdf-btn" onclick="gerarPDFDoDia('${data}', ${JSON.stringify(agendamentosDoDia).replace(/"/g, '&quot;')})">
+                                📄 Baixar PDF
+                            </button>
+                        </div>
+                `;
+                
+                // Ordenar agendamentos do dia por hora
+                agendamentosDoDia.sort((a, b) => a.hora.localeCompare(b.hora));
+                
+                agendamentosDoDia.forEach(agendamento => {
+                    html += `
+                        <div class="card-agendamento">
+                            <h3>👤 ${agendamento.cliente}</h3>
+                            
+                            <div class="info-grid">
+                                <div class="info-item">
+                                    <span class="info-label">🕐 Hora:</span>
+                                    <span><strong>${agendamento.hora}</strong></span>
+                                </div>
+                                
+                                <div class="info-item">
+                                    <span class="info-label">👨‍💼 Funcionário:</span>
+                                    <span>${agendamento.funcionario}</span>
+                                </div>
+                                
+                                <div class="info-item">
+                                    <span class="info-label">💼 Serviço:</span>
+                                    <span>${agendamento.servico}</span>
+                                </div>
+                                
+                                <div class="info-item">
+                                    <span class="info-label">📋 Status:</span>
+                                    <span class="status-${agendamento.status}">${agendamento.status.toUpperCase()}</span>
+                                </div>
+                                
+                                <div class="info-item">
+                                    <span class="info-label">📞 Telefone:</span>
+                                    <span>${agendamento.telefone}</span>
+                                </div>
+                            </div>
+                            
+                            ${agendamento.observacoes ? `
+                                <div class="observacoes">
+                                    <strong>📝 Observações:</strong> ${agendamento.observacoes}
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                });
+                
+                html += '</div>';
+            });
+
+            container.innerHTML = html;
+        }
+
+        // Função principal
+        async function carregarAgendamentos() {
+            const container = document.getElementById('listaAgendamentos');
+            
+            try {
+                container.innerHTML = '<div class="loading">⏳ Carregando agendamentos...</div>';
+                
+                const agendamentos = await carregarAgendamentosFirebase();
+                exibirAgendamentos(agendamentos);
+                
+            } catch (error) {
+                console.error('Erro:', error);
+                container.innerHTML = `
+                    <div class="error">
+                        <h3>❌ Erro ao carregar agendamentos</h3>
+                        <p><strong>Detalhes:</strong> ${error.message}</p>
+                        <p>Verifique sua configuração do Firebase e tente novamente.</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Tornar função global para o botão
+        window.carregarAgendamentos = carregarAgendamentos;
+
+        // Carregar automaticamente quando a página abrir
+        document.addEventListener('DOMContentLoaded', carregarAgendamentos);
+    </script>
+</body>
+</html>

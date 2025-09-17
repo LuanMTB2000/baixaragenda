@@ -439,7 +439,7 @@
                                 </h2>
                                 <p style="margin: 5px 0 0 0; opacity: 0.9;">${agendamentosDoDia.length} agendamento${agendamentosDoDia.length !== 1 ? 's' : ''}</p>
                             </div>
-                            <button class="pdf-btn" onclick="gerarPDFDoDia('${data}', ${JSON.stringify(agendamentosDoDia).replace(/"/g, '&quot;')})">
+                            <button class="pdf-btn" onclick="window.gerarPDFDoDia('${data}', ${JSON.stringify(agendamentosDoDia).replace(/"/g, '&quot;')})">
                                 📄 Baixar PDF
                             </button>
                         </div>
@@ -495,30 +495,83 @@
             container.innerHTML = html;
         }
 
-        // Função principal
+        // Função principal com debug
         async function carregarAgendamentos() {
             const container = document.getElementById('listaAgendamentos');
             
             try {
-                container.innerHTML = '<div class="loading">⏳ Carregando agendamentos...</div>';
+                container.innerHTML = '<div class="loading">⏳ Testando conexão Firebase...</div>';
+                
+                console.log('🔧 Iniciando teste de conexão...');
+                console.log('🔧 Firebase config:', firebaseConfig);
+                console.log('🔧 App inicializado:', !!app);
+                console.log('🔧 Database conectado:', !!db);
+                
+                container.innerHTML = '<div class="loading">⏳ Buscando agendamentos...</div>';
                 
                 const agendamentos = await carregarAgendamentosFirebase();
-                exibirAgendamentos(agendamentos);
+                
+                console.log('✅ Agendamentos carregados com sucesso:', agendamentos.length);
+                
+                // Verificar se a função existe
+                if (typeof exibirAgendamentosAgrupados === 'function') {
+                    console.log('✅ Função exibirAgendamentosAgrupados encontrada');
+                    exibirAgendamentosAgrupados(agendamentos);
+                } else {
+                    throw new Error('Função exibirAgendamentosAgrupados não foi definida');
+                }
                 
             } catch (error) {
-                console.error('Erro:', error);
+                console.error('❌ Erro completo:', error);
+                console.error('❌ Stack trace:', error.stack);
+                
+                let errorMessage = error.message;
+                let errorDetails = '';
+                
+                // Identificar tipos específicos de erro
+                if (error.code) {
+                    switch (error.code) {
+                        case 'failed-precondition':
+                            errorMessage = 'Índice necessário não foi criado no Firestore';
+                            errorDetails = 'Clique no link que aparecerá no console para criar o índice automaticamente.';
+                            break;
+                        case 'permission-denied':
+                            errorMessage = 'Permissão negada para acessar o Firestore';
+                            errorDetails = 'Verifique as regras de segurança do Firestore.';
+                            break;
+                        case 'unavailable':
+                            errorMessage = 'Firestore temporariamente indisponível';
+                            errorDetails = 'Tente novamente em alguns segundos.';
+                            break;
+                    }
+                }
+                
                 container.innerHTML = `
                     <div class="error">
                         <h3>❌ Erro ao carregar agendamentos</h3>
-                        <p><strong>Detalhes:</strong> ${error.message}</p>
-                        <p>Verifique sua configuração do Firebase e tente novamente.</p>
+                        <p><strong>Tipo:</strong> ${error.code || 'Erro desconhecido'}</p>
+                        <p><strong>Mensagem:</strong> ${errorMessage}</p>
+                        ${errorDetails ? `<p><strong>Solução:</strong> ${errorDetails}</p>` : ''}
+                        <hr>
+                        <details style="margin-top: 10px;">
+                            <summary><strong>🔍 Mostrar detalhes técnicos</strong></summary>
+                            <div style="background: #f8f8f8; padding: 15px; margin-top: 10px; border-radius: 4px; font-size: 12px;">
+                                <p><strong>Erro original:</strong> ${error.message}</p>
+                                <p><strong>Código:</strong> ${error.code || 'Não definido'}</p>
+                                <pre style="white-space: pre-wrap; margin-top: 10px;">${error.stack || 'Stack não disponível'}</pre>
+                            </div>
+                        </details>
+                        <div style="margin-top: 15px; padding: 10px; background: #e3f2fd; border-radius: 4px;">
+                            <p><strong>💡 Dica:</strong> Abra o Console do navegador (F12) para ver mais detalhes.</p>
+                        </div>
                     </div>
                 `;
             }
         }
 
-        // Tornar função global para o botão
+        // Tornar funções globais para os botões
         window.carregarAgendamentos = carregarAgendamentos;
+        window.gerarPDFDoDia = gerarPDFDoDia;
 
         // Carregar automaticamente quando a página abrir
         document.addEventListener('DOMContentLoaded', carregarAgendamentos);

@@ -300,47 +300,69 @@
                 doc.setTextColor(100, 100, 100);
                 doc.text('Nenhum agendamento para este dia.', 20, yPosition);
             } else {
+                // Cabeçalho da tabela
+                doc.setFontSize(10);
+                doc.setTextColor(60, 60, 60);
+                doc.setFont('helvetica', 'bold');
+                doc.text('HORÁRIO', 20, yPosition);
+                doc.text('CLIENTE', 50, yPosition);
+                doc.text('FUNCIONÁRIO', 120, yPosition);
+                doc.text('STATUS', 160, yPosition);
+                
+                // Linha do cabeçalho
+                doc.setDrawColor(200, 200, 200);
+                doc.setLineWidth(0.3);
+                doc.line(20, yPosition + 2, 190, yPosition + 2);
+                
+                yPosition += 10;
+                
                 // Ordenar por hora
                 agendamentos.sort((a, b) => a.hora.localeCompare(b.hora));
                 
                 agendamentos.forEach((agendamento, index) => {
                     // Verificar se precisa de nova página
-                    if (yPosition > 250) {
+                    if (yPosition > 270) {
                         doc.addPage();
-                        yPosition = 20;
+                        yPosition = 30;
+                        
+                        // Repetir cabeçalho na nova página
+                        doc.setFontSize(10);
+                        doc.setTextColor(60, 60, 60);
+                        doc.setFont('helvetica', 'bold');
+                        doc.text('HORÁRIO', 20, yPosition);
+                        doc.text('CLIENTE', 50, yPosition);
+                        doc.text('FUNCIONÁRIO', 120, yPosition);
+                        doc.text('STATUS', 160, yPosition);
+                        doc.line(20, yPosition + 2, 190, yPosition + 2);
+                        yPosition += 10;
                     }
                     
-                    // Box do agendamento
-                    doc.setFillColor(248, 249, 250);
-                    doc.roundedRect(15, yPosition - 5, 180, 45, 3, 3, 'F');
+                    // Alternar cor de fundo das linhas
+                    if (index % 2 === 0) {
+                        doc.setFillColor(248, 249, 250);
+                        doc.rect(15, yPosition - 3, 180, 8, 'F');
+                    }
                     
-                    // Número do agendamento
+                    // Horário
                     doc.setFontSize(10);
-                    doc.setTextColor(100, 100, 100);
-                    doc.text(`#${index + 1}`, 20, yPosition);
-                    
-                    // Hora (destaque)
-                    doc.setFontSize(14);
-                    doc.setTextColor(231, 76, 60);
-                    doc.setFont('helvetica', 'bold');
-                    doc.text(agendamento.hora, 160, yPosition);
-                    
-                    // Nome do cliente
-                    doc.setFontSize(12);
                     doc.setTextColor(40, 40, 40);
                     doc.setFont('helvetica', 'bold');
-                    doc.text(`Cliente: ${agendamento.cliente}`, 20, yPosition + 8);
+                    doc.text(agendamento.hora, 20, yPosition);
                     
-                    // Informações secundárias
-                    doc.setFontSize(10);
-                    doc.setTextColor(60, 60, 60);
+                    // Cliente (limitado para caber na linha)
                     doc.setFont('helvetica', 'normal');
-                    doc.text(`Funcionário: ${agendamento.funcionario}`, 20, yPosition + 16);
-                    doc.text(`Serviço: ${agendamento.servico}`, 20, yPosition + 24);
-                    doc.text(`Telefone: ${agendamento.telefone}`, 20, yPosition + 32);
+                    let cliente = agendamento.cliente.length > 20 ? 
+                                 agendamento.cliente.substring(0, 20) + '...' : 
+                                 agendamento.cliente;
+                    doc.text(cliente, 50, yPosition);
                     
-                    // Status
-                    doc.setFontSize(9);
+                    // Funcionário
+                    let funcionario = agendamento.funcionario.length > 15 ? 
+                                     agendamento.funcionario.substring(0, 15) + '...' : 
+                                     agendamento.funcionario;
+                    doc.text(funcionario, 120, yPosition);
+                    
+                    // Status com cor
                     let statusColor;
                     switch(agendamento.status.toLowerCase()) {
                         case 'confirmado': statusColor = [39, 174, 96]; break;
@@ -349,38 +371,28 @@
                     }
                     doc.setTextColor(statusColor[0], statusColor[1], statusColor[2]);
                     doc.setFont('helvetica', 'bold');
-                    doc.text(`STATUS: ${agendamento.status.toUpperCase()}`, 120, yPosition + 16);
+                    doc.text(agendamento.status.toUpperCase(), 160, yPosition);
                     
-                    // Observações (se houver)
-                    if (agendamento.observacoes && agendamento.observacoes.trim()) {
-                        doc.setFontSize(9);
-                        doc.setTextColor(80, 80, 80);
-                        doc.setFont('helvetica', 'italic');
-                        const obs = agendamento.observacoes.length > 50 ? 
-                                   agendamento.observacoes.substring(0, 50) + '...' : 
-                                   agendamento.observacoes;
-                        doc.text(`Obs: ${obs}`, 120, yPosition + 24);
-                    }
-                    
-                    yPosition += 55;
+                    yPosition += 8;
                 });
                 
                 // Resumo no final
-                yPosition += 10;
-                if (yPosition > 250) {
+                yPosition += 15;
+                if (yPosition > 260) {
                     doc.addPage();
-                    yPosition = 20;
+                    yPosition = 30;
                 }
                 
+                // Box do resumo
                 doc.setFillColor(52, 152, 219);
-                doc.roundedRect(15, yPosition, 180, 25, 3, 3, 'F');
+                doc.roundedRect(15, yPosition - 5, 180, 20, 3, 3, 'F');
                 
-                doc.setFontSize(12);
+                doc.setFontSize(11);
                 doc.setTextColor(255, 255, 255);
                 doc.setFont('helvetica', 'bold');
-                doc.text(`TOTAL DE AGENDAMENTOS: ${agendamentos.length}`, 20, yPosition + 8);
+                doc.text(`TOTAL: ${agendamentos.length} agendamentos`, 20, yPosition + 3);
                 
-                // Contagem por status
+                // Contagem por status na mesma linha
                 const statusCount = agendamentos.reduce((acc, ag) => {
                     acc[ag.status] = (acc[ag.status] || 0) + 1;
                     return acc;
@@ -388,11 +400,11 @@
                 
                 let statusText = '';
                 Object.entries(statusCount).forEach(([status, count]) => {
-                    statusText += `${status.toUpperCase()}: ${count}  `;
+                    statusText += `${status}: ${count}  `;
                 });
                 
-                doc.setFontSize(10);
-                doc.text(statusText, 20, yPosition + 16);
+                doc.setFontSize(9);
+                doc.text(statusText, 20, yPosition + 10);
             }
             
             // Rodapé

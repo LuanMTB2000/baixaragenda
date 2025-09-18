@@ -307,7 +307,7 @@
                 doc.text('HORÁRIO', 20, yPosition);
                 doc.text('CLIENTE', 50, yPosition);
                 doc.text('FUNCIONÁRIO', 120, yPosition);
-                doc.text('STATUS', 160, yPosition);
+                doc.text('SERVIÇO', 160, yPosition);
                 
                 // Linha do cabeçalho
                 doc.setDrawColor(200, 200, 200);
@@ -332,7 +332,7 @@
                         doc.text('HORÁRIO', 20, yPosition);
                         doc.text('CLIENTE', 50, yPosition);
                         doc.text('FUNCIONÁRIO', 120, yPosition);
-                        doc.text('STATUS', 160, yPosition);
+                        doc.text('SERVIÇO', 160, yPosition);
                         doc.line(20, yPosition + 2, 190, yPosition + 2);
                         yPosition += 10;
                     }
@@ -362,16 +362,13 @@
                                      agendamento.funcionario;
                     doc.text(funcionario, 120, yPosition);
                     
-                    // Status com cor
-                    let statusColor;
-                    switch(agendamento.status.toLowerCase()) {
-                        case 'confirmado': statusColor = [39, 174, 96]; break;
-                        case 'cancelado': statusColor = [231, 76, 60]; break;
-                        default: statusColor = [243, 156, 18];
-                    }
-                    doc.setTextColor(statusColor[0], statusColor[1], statusColor[2]);
-                    doc.setFont('helvetica', 'bold');
-                    doc.text(agendamento.status.toUpperCase(), 160, yPosition);
+                    // Serviço (limitado para caber na linha)
+                    doc.setTextColor(40, 40, 40);
+                    doc.setFont('helvetica', 'normal');
+                    let servico = agendamento.servico.length > 25 ? 
+                                 agendamento.servico.substring(0, 25) + '...' : 
+                                 agendamento.servico;
+                    doc.text(servico, 160, yPosition);
                     
                     yPosition += 8;
                 });

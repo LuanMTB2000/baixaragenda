@@ -321,7 +321,7 @@
                 
                 agendamentos.forEach((agendamento, index) => {
                     // Verificar se precisa de nova página
-                    if (yPosition > 270) {
+                    if (yPosition > 260) {
                         doc.addPage();
                         yPosition = 30;
                         
@@ -371,6 +371,29 @@
                     doc.text(servico, 160, yPosition);
                     
                     yPosition += 8;
+                    
+                    // Adicionar observações se existirem
+                    if (agendamento.observacoes && agendamento.observacoes.trim() !== '') {
+                        doc.setFontSize(8);
+                        doc.setTextColor(80, 80, 80);
+                        doc.setFont('helvetica', 'italic');
+                        
+                        // Quebrar texto em múltiplas linhas se necessário
+                        const obsTexto = `Obs: ${agendamento.observacoes}`;
+                        const linhasObs = doc.splitTextToSize(obsTexto, 170);
+                        
+                        linhasObs.forEach((linha, i) => {
+                            // Verificar se precisa de nova página
+                            if (yPosition > 275) {
+                                doc.addPage();
+                                yPosition = 30;
+                            }
+                            doc.text(linha, 20, yPosition);
+                            yPosition += 4;
+                        });
+                        
+                        yPosition += 2; // Espaço extra após observações
+                    }
                 });
                 
                 // Resumo no final

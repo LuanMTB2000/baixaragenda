@@ -164,8 +164,55 @@
             margin-bottom: 40px;
         }
         
+        .estatisticas-mrjack {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin: 20px 0;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+        
+        .estatisticas-mrjack h2 {
+            margin: 0 0 15px 0;
+            font-size: 1.8em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .stat-card {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.95;
+        }
+        
         @media (max-width: 768px) {
             .info-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
                 grid-template-columns: 1fr;
             }
         }
@@ -175,6 +222,8 @@
     <h1>📅 Agendamentos a partir de Hoje</h1>
     
     <button class="refresh-btn" onclick="carregarAgendamentos()">🔄 Atualizar Lista</button>
+    
+    <div id="estatisticasMrJack"></div>
     
     <div id="listaAgendamentos">
         <div class="loading">Carregando agendamentos...</div>
@@ -208,6 +257,107 @@
         function formatarDataBR(dataString) {
             const [ano, mes, dia] = dataString.split('-');
             return `${dia}/${mes}/${ano}`;
+        }
+
+        // Função para buscar estatísticas do Mr Jack no mês atual
+        async function buscarEstatisticasMrJack() {
+            try {
+                const hoje = new Date();
+                const ano = hoje.getFullYear();
+                const mes = String(hoje.getMonth() + 1).padStart(2, '0');
+                
+                // Primeiro e último dia do mês
+                const primeiroDia = `${ano}-${mes}-01`;
+                const ultimoDia = `${ano}-${mes}-${new Date(ano, hoje.getMonth() + 1, 0).getDate()}`;
+                
+                console.log(`Buscando agendamentos do Mr Jack entre ${primeiroDia} e ${ultimoDia}`);
+                
+                const q = query(
+                    collection(db, 'agendamentos'),
+                    where('data', '>=', primeiroDia),
+                    where('data', '<=', ultimoDia),
+                    orderBy('data', 'asc')
+                );
+
+                const querySnapshot = await getDocs(q);
+                
+                let totalMrJack = 0;
+                let porStatus = {
+                    agendado: 0,
+                    confirmado: 0,
+                    cancelado: 0
+                };
+                
+                querySnapshot.forEach((doc) => {
+                    const dados = doc.data();
+                    const funcionario = dados.funcionario || '';
+                    
+                    // Verificar se é Mr Jack
+                    if (funcionario.toLowerCase().includes('mrjack') || 
+                        funcionario.toLowerCase().includes('mr jack') || 
+                        funcionario.toLowerCase().includes('mr.jack')) {
+                        totalMrJack++;
+                        
+                        const status = dados.status || 'agendado';
+                        if (porStatus[status] !== undefined) {
+                            porStatus[status]++;
+                        }
+                    }
+                });
+                
+                return {
+                    total: totalMrJack,
+                    porStatus: porStatus,
+                    mesNome: hoje.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })
+                };
+                
+            } catch (error) {
+                console.error('Erro ao buscar estatísticas:', error);
+                return null;
+            }
+        }
+
+        // Função para exibir estatísticas do Mr Jack
+        function exibirEstatisticasMrJack(stats) {
+            const container = document.getElementById('estatisticasMrJack');
+            
+            if (!stats || stats.total === 0) {
+                container.innerHTML = '';
+                return;
+            }
+            
+            container.innerHTML = `
+                <div class="estatisticas-mrjack">
+                    <h2>
+                        👨‍💼 Estatísticas - MR JACK
+                    </h2>
+                    <p style="margin: 0; opacity: 0.95; font-size: 1.1em;">
+                        Agendamentos em ${stats.mesNome}
+                    </p>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-label">📊 TOTAL NO MÊS</div>
+                            <div class="stat-number">${stats.total}</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-label">⏰ AGENDADOS</div>
+                            <div class="stat-number">${stats.porStatus.agendado}</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-label">✅ CONFIRMADOS</div>
+                            <div class="stat-number">${stats.porStatus.confirmado}</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-label">❌ CANCELADOS</div>
+                            <div class="stat-number">${stats.porStatus.cancelado}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
         }
 
         // Função para carregar agendamentos do Firebase
@@ -301,13 +451,14 @@
                 doc.text('Nenhum agendamento para este dia.', 20, yPosition);
             } else {
                 // Cabeçalho da tabela
-                doc.setFontSize(10);
+                doc.setFontSize(9);
                 doc.setTextColor(60, 60, 60);
                 doc.setFont('helvetica', 'bold');
                 doc.text('HORÁRIO', 20, yPosition);
-                doc.text('CLIENTE', 50, yPosition);
-                doc.text('FUNCIONÁRIO', 120, yPosition);
-                doc.text('SERVIÇO', 160, yPosition);
+                doc.text('CLIENTE', 45, yPosition);
+                doc.text('TELEFONE', 95, yPosition);
+                doc.text('FUNCIONÁRIO', 135, yPosition);
+                doc.text('SERVIÇO', 175, yPosition);
                 
                 // Linha do cabeçalho
                 doc.setDrawColor(200, 200, 200);
@@ -321,18 +472,19 @@
                 
                 agendamentos.forEach((agendamento, index) => {
                     // Verificar se precisa de nova página
-                    if (yPosition > 260) {
+                    if (yPosition > 270) {
                         doc.addPage();
                         yPosition = 30;
                         
                         // Repetir cabeçalho na nova página
-                        doc.setFontSize(10);
+                        doc.setFontSize(9);
                         doc.setTextColor(60, 60, 60);
                         doc.setFont('helvetica', 'bold');
                         doc.text('HORÁRIO', 20, yPosition);
-                        doc.text('CLIENTE', 50, yPosition);
-                        doc.text('FUNCIONÁRIO', 120, yPosition);
-                        doc.text('SERVIÇO', 160, yPosition);
+                        doc.text('CLIENTE', 45, yPosition);
+                        doc.text('TELEFONE', 95, yPosition);
+                        doc.text('FUNCIONÁRIO', 135, yPosition);
+                        doc.text('SERVIÇO', 175, yPosition);
                         doc.line(20, yPosition + 2, 190, yPosition + 2);
                         yPosition += 10;
                     }
@@ -344,56 +496,39 @@
                     }
                     
                     // Horário
-                    doc.setFontSize(10);
+                    doc.setFontSize(9);
                     doc.setTextColor(40, 40, 40);
                     doc.setFont('helvetica', 'bold');
                     doc.text(agendamento.hora, 20, yPosition);
                     
                     // Cliente (limitado para caber na linha)
                     doc.setFont('helvetica', 'normal');
-                    let cliente = agendamento.cliente.length > 20 ? 
-                                 agendamento.cliente.substring(0, 20) + '...' : 
+                    let cliente = agendamento.cliente.length > 16 ? 
+                                 agendamento.cliente.substring(0, 16) + '...' : 
                                  agendamento.cliente;
-                    doc.text(cliente, 50, yPosition);
+                    doc.text(cliente, 45, yPosition);
+                    
+                    // Telefone
+                    let telefone = agendamento.telefone.length > 13 ? 
+                                  agendamento.telefone.substring(0, 13) + '...' : 
+                                  agendamento.telefone;
+                    doc.text(telefone, 95, yPosition);
                     
                     // Funcionário
-                    let funcionario = agendamento.funcionario.length > 15 ? 
-                                     agendamento.funcionario.substring(0, 15) + '...' : 
+                    let funcionario = agendamento.funcionario.length > 13 ? 
+                                     agendamento.funcionario.substring(0, 13) + '...' : 
                                      agendamento.funcionario;
-                    doc.text(funcionario, 120, yPosition);
+                    doc.text(funcionario, 135, yPosition);
                     
                     // Serviço (limitado para caber na linha)
                     doc.setTextColor(40, 40, 40);
                     doc.setFont('helvetica', 'normal');
-                    let servico = agendamento.servico.length > 25 ? 
-                                 agendamento.servico.substring(0, 25) + '...' : 
+                    let servico = agendamento.servico.length > 15 ? 
+                                 agendamento.servico.substring(0, 15) + '...' : 
                                  agendamento.servico;
-                    doc.text(servico, 160, yPosition);
+                    doc.text(servico, 175, yPosition);
                     
                     yPosition += 8;
-                    
-                    // Adicionar observações se existirem
-                    if (agendamento.observacoes && agendamento.observacoes.trim() !== '') {
-                        doc.setFontSize(8);
-                        doc.setTextColor(80, 80, 80);
-                        doc.setFont('helvetica', 'italic');
-                        
-                        // Quebrar texto em múltiplas linhas se necessário
-                        const obsTexto = `Obs: ${agendamento.observacoes}`;
-                        const linhasObs = doc.splitTextToSize(obsTexto, 170);
-                        
-                        linhasObs.forEach((linha, i) => {
-                            // Verificar se precisa de nova página
-                            if (yPosition > 275) {
-                                doc.addPage();
-                                yPosition = 30;
-                            }
-                            doc.text(linha, 20, yPosition);
-                            yPosition += 4;
-                        });
-                        
-                        yPosition += 2; // Espaço extra após observações
-                    }
                 });
                 
                 // Resumo no final
@@ -532,26 +667,18 @@
             const container = document.getElementById('listaAgendamentos');
             
             try {
-                container.innerHTML = '<div class="loading">⏳ Testando conexão Firebase...</div>';
+                container.innerHTML = '<div class="loading">⏳ Carregando agendamentos...</div>';
                 
-                console.log('🔧 Iniciando teste de conexão...');
-                console.log('🔧 Firebase config:', firebaseConfig);
-                console.log('🔧 App inicializado:', !!app);
-                console.log('🔧 Database conectado:', !!db);
+                // Buscar estatísticas do Mr Jack primeiro
+                const stats = await buscarEstatisticasMrJack();
+                exibirEstatisticasMrJack(stats);
                 
-                container.innerHTML = '<div class="loading">⏳ Buscando agendamentos...</div>';
-                
+                // Buscar agendamentos
                 const agendamentos = await carregarAgendamentosFirebase();
                 
                 console.log('✅ Agendamentos carregados com sucesso:', agendamentos.length);
                 
-                // Verificar se a função existe
-                if (typeof exibirAgendamentosAgrupados === 'function') {
-                    console.log('✅ Função exibirAgendamentosAgrupados encontrada');
-                    exibirAgendamentosAgrupados(agendamentos);
-                } else {
-                    throw new Error('Função exibirAgendamentosAgrupados não foi definida');
-                }
+                exibirAgendamentosAgrupados(agendamentos);
                 
             } catch (error) {
                 console.error('❌ Erro completo:', error);

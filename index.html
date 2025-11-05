@@ -363,15 +363,20 @@
         // Função para carregar agendamentos do Firebase
         async function carregarAgendamentosFirebase() {
             try {
-                // Data de hoje no formato YYYY-MM-DD
-                const hoje = new Date();
-                const hojeFormatado = hoje.toISOString().split('T')[0];
+               // Data de hoje e ontem no formato YYYY-MM-DD
+const hoje = new Date();
+const ontem = new Date();
+ontem.setDate(hoje.getDate() - 1);
+
+const hojeFormatado = hoje.toISOString().split('T')[0];
+const ontemFormatado = ontem.toISOString().split('T')[0];
+
                 
                 console.log('Buscando agendamentos a partir de:', hojeFormatado);
 
                 const q = query(
                     collection(db, 'agendamentos'),
-                    where('data', '>=', hojeFormatado),
+                    where('data', '>=', ontemFormatado),
                     orderBy('data', 'asc'),
                     orderBy('hora', 'asc')
                 );
@@ -737,3 +742,4 @@
     </script>
 </body>
 </html>
+

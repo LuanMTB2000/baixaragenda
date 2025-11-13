@@ -207,6 +207,33 @@
             opacity: 0.95;
         }
         
+        .whatsapp-btn {
+            background-color: #25D366;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 13px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s;
+            text-decoration: none;
+            font-weight: 500;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .whatsapp-btn:hover {
+            background-color: #20BA5A;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        
+        .whatsapp-icon {
+            font-size: 18px;
+        }
+        
         @media (max-width: 768px) {
             .info-grid {
                 grid-template-columns: 1fr;
@@ -257,6 +284,38 @@
         function formatarDataBR(dataString) {
             const [ano, mes, dia] = dataString.split('-');
             return `${dia}/${mes}/${ano}`;
+        }
+
+        // Função para formatar data por extenso
+        function formatarDataExtenso(dataString) {
+            const data = new Date(dataString + 'T00:00:00');
+            const dia = data.getDate();
+            const meses = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 
+                          'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
+            const mes = meses[data.getMonth()];
+            return `${dia} de ${mes}`;
+        }
+
+        // Função para gerar link do WhatsApp
+        function gerarLinkWhatsApp(telefone, cliente, data, hora) {
+            // Remover caracteres não numéricos do telefone
+            const telefoneLimpo = telefone.replace(/\D/g, '');
+            
+            // Formatar data por extenso
+            const dataExtenso = formatarDataExtenso(data);
+            
+            // Mensagem formatada
+            const mensagem = `Oii, tudo bem?
+Confirmando sua prova de traje: ${dataExtenso} às ${hora} aqui na Mr. Jack.
+É necessário vir provar, para conferência dos ajustes, se estiver tudo certo, você já leva o traje no mesmo dia.
+Como estamos em alto fluxo, pedimos que chegue no horário combinado pra garantir seu atendimento certinho.
+Posso confirmar? ✨`;
+            
+            // Codificar mensagem para URL
+            const mensagemCodificada = encodeURIComponent(mensagem);
+            
+            // Retornar link do WhatsApp
+            return `https://wa.me/55${telefoneLimpo}?text=${mensagemCodificada}`;
         }
 
         // Função para buscar estatísticas do Mr Jack no mês atual
@@ -363,20 +422,15 @@
         // Função para carregar agendamentos do Firebase
         async function carregarAgendamentosFirebase() {
             try {
-               // Data de hoje e ontem no formato YYYY-MM-DD
-const hoje = new Date();
-const ontem = new Date();
-ontem.setDate(hoje.getDate() - 1);
-
-const hojeFormatado = hoje.toISOString().split('T')[0];
-const ontemFormatado = ontem.toISOString().split('T')[0];
-
+                // Data de hoje no formato YYYY-MM-DD
+                const hoje = new Date();
+                const hojeFormatado = hoje.toISOString().split('T')[0];
                 
                 console.log('Buscando agendamentos a partir de:', hojeFormatado);
 
                 const q = query(
                     collection(db, 'agendamentos'),
-                    where('data', '>=', ontemFormatado),
+                    where('data', '>=', hojeFormatado),
                     orderBy('data', 'asc'),
                     orderBy('hora', 'asc')
                 );
@@ -621,9 +675,17 @@ const ontemFormatado = ontem.toISOString().split('T')[0];
                 agendamentosDoDia.sort((a, b) => a.hora.localeCompare(b.hora));
                 
                 agendamentosDoDia.forEach(agendamento => {
+                    const linkWhatsApp = gerarLinkWhatsApp(agendamento.telefone, agendamento.cliente, agendamento.data, agendamento.hora);
+                    
                     html += `
                         <div class="card-agendamento">
-                            <h3>👤 ${agendamento.cliente}</h3>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                <h3 style="margin: 0;">👤 ${agendamento.cliente}</h3>
+                                <a href="${linkWhatsApp}" target="_blank" class="whatsapp-btn">
+                                    <span class="whatsapp-icon">💬</span>
+                                    Confirmar WhatsApp
+                                </a>
+                            </div>
                             
                             <div class="info-grid">
                                 <div class="info-item">
@@ -742,4 +804,3 @@ const ontemFormatado = ontem.toISOString().split('T')[0];
     </script>
 </body>
 </html>
-

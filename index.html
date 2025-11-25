@@ -544,73 +544,107 @@ Posso confirmar? ✨`;
         }
         
         // Função para exibir tabela de agendamentos por dia
-        function exibirTabelaDiaria(agendamentos) {
+        async function exibirTabelaDiaria() {
             const container = document.getElementById('tabelaDiaria');
             
-            if (agendamentos.length === 0) {
-                container.innerHTML = '';
-                return;
-            }
-            
-            // Agrupar por data
-            const agendamentosPorDia = {};
-            
-            agendamentos.forEach(ag => {
-                if (!agendamentosPorDia[ag.data]) {
-                    agendamentosPorDia[ag.data] = 0;
+            try {
+                const hoje = new Date();
+                const ano = hoje.getFullYear();
+                const mes = String(hoje.getMonth() + 1).padStart(2, '0');
+                
+                // Primeiro e último dia do mês
+                const primeiroDia = `${ano}-${mes}-01`;
+                const ultimoDia = `${ano}-${mes}-${new Date(ano, hoje.getMonth() + 1, 0).getDate()}`;
+                
+                // Buscar agendamentos do Mr Jack no mês atual
+                const q = query(
+                    collection(db, 'agendamentos'),
+                    where('data', '>=', primeiroDia),
+                    where('data', '<=', ultimoDia),
+                    orderBy('data', 'asc')
+                );
+
+                const querySnapshot = await getDocs(q);
+                
+                // Filtrar apenas agendamentos do Mr Jack
+                const agendamentosPorDia = {};
+                
+                querySnapshot.forEach((doc) => {
+                    const dados = doc.data();
+                    const funcionario = dados.funcionario || '';
+                    
+                    // Verificar se é Mr Jack
+                    if (funcionario.toLowerCase().includes('mrjack') || 
+                        funcionario.toLowerCase().includes('mr jack') || 
+                        funcionario.toLowerCase().includes('mr.jack')) {
+                        
+                        const data = dados.data;
+                        if (!agendamentosPorDia[data]) {
+                            agendamentosPorDia[data] = 0;
+                        }
+                        agendamentosPorDia[data]++;
+                    }
+                });
+                
+                // Verificar se há agendamentos
+                const datasOrdenadas = Object.keys(agendamentosPorDia).sort();
+                
+                if (datasOrdenadas.length === 0) {
+                    container.innerHTML = '';
+                    return;
                 }
-                agendamentosPorDia[ag.data]++;
-            });
-            
-            // Ordenar as datas
-            const datasOrdenadas = Object.keys(agendamentosPorDia).sort();
-            
-            // Calcular total
-            const totalAgendamentos = agendamentos.length;
-            
-            let html = `
-                <div class="tabela-diaria">
-                    <h2>📊 Agendamentos por Dia</h2>
-                    <table class="tabela-agendamentos">
-                        <thead>
-                            <tr>
-                                <th>📅 Data</th>
-                                <th>📆 Dia da Semana</th>
-                                <th style="text-align: center;">🔢 Quantidade</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-            `;
-            
-            datasOrdenadas.forEach(data => {
-                const dataFormatada = formatarDataBR(data);
-                const dataObj = new Date(data + 'T00:00:00');
-                const diaSemana = dataObj.toLocaleDateString('pt-BR', { weekday: 'long' });
-                const diaSemanaFormatado = diaSemana.charAt(0).toUpperCase() + diaSemana.slice(1);
-                const quantidade = agendamentosPorDia[data];
+                
+                // Calcular total
+                const totalAgendamentos = Object.values(agendamentosPorDia).reduce((a, b) => a + b, 0);
+                
+                let html = `
+                    <div class="tabela-diaria">
+                        <h2>📊 Atendimentos do MR JACK por Dia - ${hoje.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}</h2>
+                        <table class="tabela-agendamentos">
+                            <thead>
+                                <tr>
+                                    <th>📅 Data</th>
+                                    <th>📆 Dia da Semana</th>
+                                    <th style="text-align: center;">🔢 Atendimentos</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+                
+                datasOrdenadas.forEach(data => {
+                    const dataFormatada = formatarDataBR(data);
+                    const dataObj = new Date(data + 'T00:00:00');
+                    const diaSemana = dataObj.toLocaleDateString('pt-BR', { weekday: 'long' });
+                    const diaSemanaFormatado = diaSemana.charAt(0).toUpperCase() + diaSemana.slice(1);
+                    const quantidade = agendamentosPorDia[data];
+                    
+                    html += `
+                        <tr>
+                            <td class="data-tabela">${dataFormatada}</td>
+                            <td class="dia-semana">${diaSemanaFormatado}</td>
+                            <td style="text-align: center;" class="numero-agendamentos">${quantidade}</td>
+                        </tr>
+                    `;
+                });
                 
                 html += `
-                    <tr>
-                        <td class="data-tabela">${dataFormatada}</td>
-                        <td class="dia-semana">${diaSemanaFormatado}</td>
-                        <td style="text-align: center;" class="numero-agendamentos">${quantidade}</td>
-                    </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr style="background: #f0f0f0; font-weight: bold;">
+                                    <td colspan="2" style="padding: 15px; text-align: right;">TOTAL NO MÊS:</td>
+                                    <td style="text-align: center; padding: 15px; font-size: 1.2em; color: #3498db;">${totalAgendamentos}</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
                 `;
-            });
-            
-            html += `
-                        </tbody>
-                        <tfoot>
-                            <tr style="background: #f0f0f0; font-weight: bold;">
-                                <td colspan="2" style="padding: 15px; text-align: right;">TOTAL:</td>
-                                <td style="text-align: center; padding: 15px; font-size: 1.2em; color: #3498db;">${totalAgendamentos}</td>
-                            </tr>
-                        </tfoot>
-                    </table>
-                </div>
-            `;
-            
-            container.innerHTML = html;
+                
+                container.innerHTML = html;
+                
+            } catch (error) {
+                console.error('Erro ao carregar tabela diária:', error);
+                container.innerHTML = '';
+            }
         }
 
         // Função para carregar agendamentos do Firebase
@@ -836,14 +870,8 @@ Posso confirmar? ✨`;
                         <p>Não há agendamentos marcados ${dataFiltrada ? 'para esta data' : 'a partir de hoje'}.</p>
                     </div>
                 `;
-                
-                // Limpar tabela diária também
-                document.getElementById('tabelaDiaria').innerHTML = '';
                 return;
             }
-            
-            // Exibir tabela diária
-            exibirTabelaDiaria(agendamentos);
 
             const gruposPorData = agruparPorData(agendamentos);
             let html = '';
@@ -1087,6 +1115,9 @@ Posso confirmar? ✨`;
                 // Buscar estatísticas do Mr Jack primeiro
                 const stats = await buscarEstatisticasMrJack();
                 exibirEstatisticasMrJack(stats);
+                
+                // Buscar e exibir tabela diária do Mr Jack
+                await exibirTabelaDiaria();
                 
                 // Buscar agendamentos
                 const agendamentos = await carregarAgendamentosFirebase();

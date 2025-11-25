@@ -116,11 +116,38 @@
             cursor: pointer;
             font-size: 16px;
             margin-bottom: 20px;
+            margin-right: 10px;
             transition: background-color 0.3s;
         }
         
         .refresh-btn:hover {
             background-color: #2980b9;
+        }
+        
+        .csv-btn {
+            background-color: #16a085;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-bottom: 20px;
+            transition: background-color 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .csv-btn:hover {
+            background-color: #138d75;
+        }
+        
+        .buttons-container {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
         }
         
         .search-container {
@@ -319,7 +346,27 @@
 <body>
     <h1>📅 Agendamentos a partir de Hoje</h1>
     
-    <button class="refresh-btn" onclick="carregarAgendamentos()">🔄 Atualizar Lista</button>
+    <div class="buttons-container">
+        <button class="refresh-btn" onclick="carregarAgendamentos()">🔄 Atualizar Lista</button>
+        <button class="csv-btn" onclick="baixarCSVClientes()">📊 Baixar CSV de Clientes</button>
+    </div>
+    
+    <div class="search-container">
+        <input 
+            type="date" 
+            id="dataBusca" 
+            class="search-input"
+            placeholder="Selecione uma data"
+        >
+        <button class="search-btn" onclick="filtrarPorData()">
+            🔍 Buscar Data
+        </button>
+        <button class="clear-btn" onclick="limparFiltro()">
+            ✖️ Limpar Filtro
+        </button>
+    </div>
+    
+    <div id="filtroAtivo"></div>
     
     <div id="estatisticasMrJack"></div>
     
@@ -350,6 +397,10 @@
         // Inicializar Firebase
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+        
+        // Variável global para armazenar todos os agendamentos
+        let todosAgendamentos = [];
+        let dataFiltrada = null;
 
         // Função para formatar data brasileira
         function formatarDataBR(dataString) {
@@ -710,7 +761,7 @@ Posso confirmar? ✨`;
                 container.innerHTML = `
                     <div class="no-results">
                         <h3>😊 Nenhum agendamento encontrado</h3>
-                        <p>Não há agendamentos marcados a partir de hoje.</p>
+                        <p>Não há agendamentos marcados ${dataFiltrada ? 'para esta data' : 'a partir de hoje'}.</p>
                     </div>
                 `;
                 return;
@@ -799,6 +850,97 @@ Posso confirmar? ✨`;
 
             container.innerHTML = html;
         }
+        
+        // Função para filtrar por data específica
+        function filtrarPorData() {
+            const inputData = document.getElementById('dataBusca');
+            const dataSelecionada = inputData.value;
+            
+            if (!dataSelecionada) {
+                alert('Por favor, selecione uma data!');
+                return;
+            }
+            
+            dataFiltrada = dataSelecionada;
+            
+            // Filtrar agendamentos da data selecionada
+            const agendamentosFiltrados = todosAgendamentos.filter(ag => ag.data === dataSelecionada);
+            
+            // Exibir indicador de filtro ativo
+            const filtroContainer = document.getElementById('filtroAtivo');
+            const dataFormatada = formatarDataBR(dataSelecionada);
+            filtroContainer.innerHTML = `
+                <div class="filtro-ativo">
+                    <div>
+                        <strong>🔍 Filtro Ativo:</strong> Exibindo apenas agendamentos de ${dataFormatada}
+                    </div>
+                    <button class="clear-btn" onclick="limparFiltro()" style="padding: 8px 16px; font-size: 14px;">
+                        ✖️ Remover Filtro
+                    </button>
+                </div>
+            `;
+            
+            // Exibir agendamentos filtrados
+            exibirAgendamentosAgrupados(agendamentosFiltrados);
+        }
+        
+        // Função para limpar filtro
+        function limparFiltro() {
+            dataFiltrada = null;
+            document.getElementById('dataBusca').value = '';
+            document.getElementById('filtroAtivo').innerHTML = '';
+            
+            // Exibir todos os agendamentos novamente
+            exibirAgendamentosAgrupados(todosAgendamentos);
+        }
+        
+        // Função para baixar CSV com nomes dos clientes
+        function baixarCSVClientes() {
+            if (todosAgendamentos.length === 0) {
+                alert('Nenhum agendamento disponível. Por favor, carregue os agendamentos primeiro.');
+                return;
+            }
+            
+            // Extrair apenas os nomes dos clientes
+            const nomesClientes = todosAgendamentos.map(ag => ag.cliente);
+            
+            // Remover duplicatas
+            const nomesUnicos = [...new Set(nomesClientes)];
+            
+            // Ordenar alfabeticamente
+            nomesUnicos.sort();
+            
+            // Criar conteúdo CSV
+            let csvContent = "Nome do Cliente\n"; // Cabeçalho
+            
+            nomesUnicos.forEach(nome => {
+                csvContent += `"${nome}"\n`;
+            });
+            
+            // Criar blob e download
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            
+            // Nome do arquivo com data atual
+            const hoje = new Date();
+            const dataFormatada = hoje.toISOString().split('T')[0];
+            const nomeArquivo = `clientes_agendados_${dataFormatada}.csv`;
+            
+            // Criar link de download
+            if (navigator.msSaveBlob) { // IE 10+
+                navigator.msSaveBlob(blob, nomeArquivo);
+            } else {
+                link.href = URL.createObjectURL(blob);
+                link.download = nomeArquivo;
+                link.style.display = 'none';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+            
+            console.log(`✅ CSV gerado com ${nomesUnicos.length} clientes únicos`);
+            alert(`✅ CSV baixado com sucesso!\n\nTotal de clientes únicos: ${nomesUnicos.length}`);
+        }
 
         // Função principal com debug
         async function carregarAgendamentos() {
@@ -814,9 +956,13 @@ Posso confirmar? ✨`;
                 // Buscar agendamentos
                 const agendamentos = await carregarAgendamentosFirebase();
                 
+                // Armazenar globalmente
+                todosAgendamentos = agendamentos;
+                
                 console.log('✅ Agendamentos carregados com sucesso:', agendamentos.length);
                 
-                exibirAgendamentosAgrupados(agendamentos);
+                // Limpar filtro ao recarregar
+                limparFiltro();
                 
             } catch (error) {
                 console.error('❌ Erro completo:', error);
@@ -869,6 +1015,8 @@ Posso confirmar? ✨`;
         // Tornar funções globais para os botões
         window.carregarAgendamentos = carregarAgendamentos;
         window.gerarPDFDoDia = gerarPDFDoDia;
+        window.filtrarPorData = filtrarPorData;
+        window.limparFiltro = limparFiltro;
 
         // Carregar automaticamente quando a página abrir
         document.addEventListener('DOMContentLoaded', carregarAgendamentos);

@@ -894,52 +894,109 @@ Posso confirmar? ✨`;
             exibirAgendamentosAgrupados(todosAgendamentos);
         }
         
-        // Função para baixar CSV com nomes dos clientes
-        function baixarCSVClientes() {
-            if (todosAgendamentos.length === 0) {
-                alert('Nenhum agendamento disponível. Por favor, carregue os agendamentos primeiro.');
-                return;
-            }
-            
-            // Extrair apenas os nomes dos clientes
-            const nomesClientes = todosAgendamentos.map(ag => ag.cliente);
-            
-            // Remover duplicatas
-            const nomesUnicos = [...new Set(nomesClientes)];
-            
-            // Ordenar alfabeticamente
-            nomesUnicos.sort();
-            
-            // Criar conteúdo CSV
-            let csvContent = "Nome do Cliente\n"; // Cabeçalho
-            
-            nomesUnicos.forEach(nome => {
-                csvContent += `"${nome}"\n`;
-            });
-            
-            // Criar blob e download
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            
-            // Nome do arquivo com data atual
-            const hoje = new Date();
-            const dataFormatada = hoje.toISOString().split('T')[0];
-            const nomeArquivo = `clientes_agendados_${dataFormatada}.csv`;
-            
-            // Criar link de download
-            if (navigator.msSaveBlob) { // IE 10+
-                navigator.msSaveBlob(blob, nomeArquivo);
-            } else {
-                link.href = URL.createObjectURL(blob);
+        // Função para baixar CSV com nomes dos clientes do mês atual
+        async function baixarCSVClientes() {
+            try {
+                // Mostrar loading
+                const btnCSV = document.querySelector('.csv-btn');
+                const textoOriginal = btnCSV.innerHTML;
+                btnCSV.innerHTML = '⏳ Gerando CSV...';
+                btnCSV.disabled = true;
+                
+                const hoje = new Date();
+                const ano = hoje.getFullYear();
+                const mes = String(hoje.getMonth() + 1).padStart(2, '0');
+                
+                // Primeiro e último dia do mês
+                const primeiroDia = `${ano}-${mes}-01`;
+                const ultimoDia = `${ano}-${mes}-${new Date(ano, hoje.getMonth() + 1, 0).getDate()}`;
+                
+                console.log(`Buscando clientes agendados entre ${primeiroDia} e ${ultimoDia}`);
+                
+                // Buscar agendamentos do mês atual
+                const q = query(
+                    collection(db, 'agendamentos'),
+                    where('data', '>=', primeiroDia),
+                    where('data', '<=', ultimoDia),
+                    orderBy('data', 'asc')
+                );
+
+                const querySnapshot = await getDocs(q);
+                
+                // Restaurar botão
+                btnCSV.innerHTML = textoOriginal;
+                btnCSV.disabled = false;
+                
+                if (querySnapshot.empty) {
+                    alert('❌ Nenhum agendamento encontrado no mês atual.');
+                    return;
+                }
+                
+                const nomesClientes = [];
+                
+                querySnapshot.forEach((doc) => {
+                    const dados = doc.data();
+                    if (dados.cliente) {
+                        nomesClientes.push(dados.cliente);
+                    }
+                });
+                
+                if (nomesClientes.length === 0) {
+                    alert('❌ Nenhum cliente encontrado nos agendamentos do mês atual.');
+                    return;
+                }
+                
+                // Remover duplicatas
+                const nomesUnicos = [...new Set(nomesClientes)];
+                
+                // Ordenar alfabeticamente
+                nomesUnicos.sort();
+                
+                // Criar conteúdo CSV com BOM para UTF-8
+                const BOM = '\uFEFF';
+                let csvContent = BOM + "Nome do Cliente\n"; // Cabeçalho
+                
+                nomesUnicos.forEach(nome => {
+                    csvContent += `"${nome}"\n`;
+                });
+                
+                // Criar blob e download
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                
+                // Nome do arquivo com mês e ano
+                const mesNome = hoje.toLocaleDateString('pt-BR', { month: 'long' });
+                const nomeArquivo = `clientes_${mesNome}_${ano}.csv`;
+                
+                // Criar link de download
+                const url = URL.createObjectURL(blob);
+                link.href = url;
                 link.download = nomeArquivo;
                 link.style.display = 'none';
                 document.body.appendChild(link);
                 link.click();
-                document.body.removeChild(link);
+                
+                // Limpar
+                setTimeout(() => {
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(url);
+                }, 100);
+                
+                console.log(`✅ CSV gerado com ${nomesUnicos.length} clientes únicos do mês ${mes}/${ano}`);
+                alert(`✅ CSV baixado com sucesso!\n\nMês: ${mesNome}/${ano}\nTotal de clientes únicos: ${nomesUnicos.length}\nTotal de agendamentos: ${nomesClientes.length}`);
+                
+            } catch (error) {
+                console.error('Erro ao gerar CSV:', error);
+                
+                // Restaurar botão em caso de erro
+                const btnCSV = document.querySelector('.csv-btn');
+                if (btnCSV) {
+                    btnCSV.innerHTML = '📊 Baixar CSV de Clientes';
+                    btnCSV.disabled = false;
+                }
+                
+                alert(`❌ Erro ao gerar CSV: ${error.message}\n\nVerifique o console para mais detalhes.`);
             }
-            
-            console.log(`✅ CSV gerado com ${nomesUnicos.length} clientes únicos`);
-            alert(`✅ CSV baixado com sucesso!\n\nTotal de clientes únicos: ${nomesUnicos.length}`);
         }
 
         // Função principal com debug
@@ -1017,6 +1074,7 @@ Posso confirmar? ✨`;
         window.gerarPDFDoDia = gerarPDFDoDia;
         window.filtrarPorData = filtrarPorData;
         window.limparFiltro = limparFiltro;
+        window.baixarCSVClientes = baixarCSVClientes;
 
         // Carregar automaticamente quando a página abrir
         document.addEventListener('DOMContentLoaded', carregarAgendamentos);

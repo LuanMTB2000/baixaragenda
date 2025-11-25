@@ -599,7 +599,7 @@ Posso confirmar? ✨`;
                 
                 let html = `
                     <div class="tabela-diaria">
-                        <h2>📊 Atendimentos do MR JACK por Dia - ${hoje.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}</h2>
+                        <h2>👨‍💼 Atendimentos do MR JACK - ${hoje.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }).toUpperCase()}</h2>
                         <table class="tabela-agendamentos">
                             <thead>
                                 <tr>
@@ -630,9 +630,9 @@ Posso confirmar? ✨`;
                 html += `
                             </tbody>
                             <tfoot>
-                                <tr style="background: #f0f0f0; font-weight: bold;">
-                                    <td colspan="2" style="padding: 15px; text-align: right;">TOTAL NO MÊS:</td>
-                                    <td style="text-align: center; padding: 15px; font-size: 1.2em; color: #3498db;">${totalAgendamentos}</td>
+                                <tr>
+                                    <td colspan="2" style="text-align: right; letter-spacing: 1px;">📊 TOTAL NO MÊS:</td>
+                                    <td style="text-align: center;">${totalAgendamentos}</td>
                                 </tr>
                             </tfoot>
                         </table>

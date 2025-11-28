@@ -344,7 +344,7 @@
     </style>
 </head>
 <body>
-    <h1>📅 Agendamentos a partir de Hoje</h1>
+    <h1>📅 Agendamentos da Semana</h1>
     
     <div class="buttons-container">
         <button class="refresh-btn" onclick="carregarAgendamentos()">🔄 Atualizar Lista</button>
@@ -647,18 +647,41 @@ Posso confirmar? ✨`;
             }
         }
 
+        // Função para obter o primeiro e último dia da semana atual
+        function getSemanaDatas() {
+            const hoje = new Date();
+            const diaSemana = hoje.getDay(); // 0 = Domingo, 1 = Segunda, ...
+            
+            // Calcular o primeiro dia da semana (domingo)
+            const primeiroDia = new Date(hoje);
+            primeiroDia.setDate(hoje.getDate() - diaSemana);
+            primeiroDia.setHours(0, 0, 0, 0);
+            
+            // Calcular o último dia da semana (sábado)
+            const ultimoDia = new Date(primeiroDia);
+            ultimoDia.setDate(primeiroDia.getDate() + 6);
+            ultimoDia.setHours(23, 59, 59, 999);
+            
+            return {
+                primeiroDia: primeiroDia.toISOString().split('T')[0],
+                ultimoDia: ultimoDia.toISOString().split('T')[0],
+                primeiroDiaObj: primeiroDia,
+                ultimoDiaObj: ultimoDia
+            };
+        }
+
         // Função para carregar agendamentos do Firebase
         async function carregarAgendamentosFirebase() {
             try {
-                // Data de hoje no formato YYYY-MM-DD
-                const hoje = new Date();
-                const hojeFormatado = hoje.toISOString().split('T')[0];
+                // Obter datas da semana atual
+                const { primeiroDia, ultimoDia, primeiroDiaObj, ultimoDiaObj } = getSemanaDatas();
                 
-                console.log('Buscando agendamentos a partir de:', hojeFormatado);
+                console.log('Buscando agendamentos da semana:', primeiroDia, 'até', ultimoDia);
 
                 const q = query(
                     collection(db, 'agendamentos'),
-                    where('data', '>=', hojeFormatado),
+                    where('data', '>=', primeiroDia),
+                    where('data', '<=', ultimoDia),
                     orderBy('data', 'asc'),
                     orderBy('hora', 'asc')
                 );
@@ -681,7 +704,7 @@ Posso confirmar? ✨`;
                     });
                 });
 
-                console.log('Agendamentos encontrados:', agendamentos.length);
+                console.log('Agendamentos encontrados na semana:', agendamentos.length);
                 return agendamentos;
 
             } catch (error) {
@@ -862,19 +885,29 @@ Posso confirmar? ✨`;
         // Função para exibir agendamentos agrupados por data
         function exibirAgendamentosAgrupados(agendamentos) {
             const container = document.getElementById('listaAgendamentos');
+            
+            // Obter informações da semana
+            const { primeiroDiaObj, ultimoDiaObj } = getSemanaDatas();
+            const primeiroDiaFormatado = formatarDataBR(primeiroDiaObj.toISOString().split('T')[0]);
+            const ultimoDiaFormatado = formatarDataBR(ultimoDiaObj.toISOString().split('T')[0]);
 
             if (agendamentos.length === 0) {
                 container.innerHTML = `
                     <div class="no-results">
                         <h3>😊 Nenhum agendamento encontrado</h3>
-                        <p>Não há agendamentos marcados ${dataFiltrada ? 'para esta data' : 'a partir de hoje'}.</p>
+                        <p>Não há agendamentos marcados para a semana atual (${primeiroDiaFormatado} a ${ultimoDiaFormatado}).</p>
                     </div>
                 `;
                 return;
             }
 
             const gruposPorData = agruparPorData(agendamentos);
-            let html = '';
+            let html = `
+                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 12px; margin-bottom: 30px; text-align: center;">
+                    <h2 style="margin: 0; font-size: 1.8em;">📅 Semana de ${primeiroDiaFormatado} a ${ultimoDiaFormatado}</h2>
+                    <p style="margin: 10px 0 0 0; font-size: 1.1em; opacity: 0.95;">Total de ${agendamentos.length} agendamento${agendamentos.length !== 1 ? 's' : ''} na semana</p>
+                </div>
+            `;
             
             // Ordenar as datas
             const datasOrdenadas = Object.keys(gruposPorData).sort();
@@ -882,14 +915,29 @@ Posso confirmar? ✨`;
             datasOrdenadas.forEach(data => {
                 const agendamentosDoDia = gruposPorData[data];
                 const dataFormatada = formatarDataBR(data);
-                const diaSemana = new Date(data + 'T00:00:00').toLocaleDateString('pt-BR', { weekday: 'long' });
+                const dataObj = new Date(data + 'T00:00:00');
+                const hoje = new Date();
+                hoje.setHours(0, 0, 0, 0);
+                
+                const diaSemana = dataObj.toLocaleDateString('pt-BR', { weekday: 'long' });
+                
+                // Verificar se é hoje, passou ou é futuro
+                let statusDia = '';
+                let corBorda = '#764ba2';
+                if (dataObj < hoje) {
+                    statusDia = ' (Passado)';
+                    corBorda = '#95a5a6';
+                } else if (dataObj.getTime() === hoje.getTime()) {
+                    statusDia = ' ✨ HOJE';
+                    corBorda = '#f5576c';
+                }
                 
                 html += `
                     <div class="agendamentos-do-dia">
-                        <div class="data-header">
+                        <div class="data-header" style="border-left: 6px solid ${corBorda};">
                             <div>
                                 <h2 class="data-titulo">
-                                    📅 ${diaSemana.charAt(0).toUpperCase() + diaSemana.slice(1)}, ${dataFormatada}
+                                    📅 ${diaSemana.charAt(0).toUpperCase() + diaSemana.slice(1)}, ${dataFormatada}${statusDia}
                                 </h2>
                                 <p style="margin: 5px 0 0 0; opacity: 0.9;">${agendamentosDoDia.length} agendamento${agendamentosDoDia.length !== 1 ? 's' : ''}</p>
                             </div>

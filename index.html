@@ -332,6 +332,30 @@
             font-size: 18px;
         }
         
+        .whatsapp-broadcast-btn {
+            background-color: #128C7E;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+            text-decoration: none;
+            font-weight: 600;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+            margin-left: 10px;
+        }
+        
+        .whatsapp-broadcast-btn:hover {
+            background-color: #075E54;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        
         @media (max-width: 768px) {
             .info-grid {
                 grid-template-columns: 1fr;
@@ -344,7 +368,7 @@
     </style>
 </head>
 <body>
-    <h1>📅 Agendamentos a partir de Hoje</h1>
+    <h1>📅 Todos os Agendamentos</h1>
     
     <div class="buttons-container">
         <button class="refresh-btn" onclick="carregarAgendamentos()">🔄 Atualizar Lista</button>
@@ -440,6 +464,101 @@ Posso confirmar? ✨`;
             
             // Retornar link do WhatsApp
             return `https://wa.me/55${telefoneLimpo}?text=${mensagemCodificada}`;
+        }
+        
+        // Função para gerar lista de transmissão do WhatsApp
+        function gerarListaTransmissao(data, agendamentos) {
+            // Formatar data por extenso
+            const dataExtenso = formatarDataExtenso(data);
+            
+            // Criar lista de contatos (apenas números)
+            const telefones = agendamentos
+                .map(ag => ag.telefone.replace(/\D/g, ''))
+                .filter(tel => tel.length >= 10) // Apenas telefones válidos
+                .map(tel => `55${tel}`); // Adicionar código do Brasil
+            
+            if (telefones.length === 0) {
+                alert('❌ Nenhum telefone válido encontrado para este dia.');
+                return;
+            }
+            
+            // Mensagem de confirmação
+            const mensagem = `Oii, tudo bem?
+Confirmando sua prova de traje: ${dataExtenso} aqui na Mr. Jack.
+É necessário vir provar, para conferência dos ajustes, se estiver tudo certo, você já leva o traje no mesmo dia.
+Como estamos em alto fluxo, pedimos que chegue no horário combinado pra garantir seu atendimento certinho.
+Posso confirmar? ✨`;
+            
+            // Criar texto explicativo
+            const textoExplicativo = `📱 LISTA DE TRANSMISSÃO - ${formatarDataBR(data)}
+
+Total de contatos: ${telefones.length}
+
+INSTRUÇÕES:
+1. Copie os números abaixo
+2. No WhatsApp, vá em "Nova transmissão" ou "Nova lista de transmissão"
+3. Adicione os contatos (eles precisam ter seu número salvo)
+4. Cole a mensagem que está mais abaixo
+
+NÚMEROS (separados por vírgula):
+${telefones.join(', ')}
+
+━━━━━━━━━━━━━━━━━━━━━━
+
+MENSAGEM PARA ENVIAR:
+
+${mensagem}
+
+━━━━━━━━━━━━━━━━━━━━━━
+
+✅ Dica: Você pode copiar tudo e colar em um arquivo de texto para facilitar!`;
+            
+            // Criar um textarea temporário para copiar
+            const textarea = document.createElement('textarea');
+            textarea.value = textoExplicativo;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            
+            try {
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                
+                alert(`✅ Informações copiadas para a área de transferência!
+
+📱 Total de ${telefones.length} contatos
+📅 Data: ${formatarDataBR(data)}
+
+Cole em um arquivo de texto para usar a lista de transmissão no WhatsApp.`);
+            } catch (err) {
+                document.body.removeChild(textarea);
+                
+                // Se falhar, mostrar em um modal
+                const modal = document.createElement('div');
+                modal.style.cssText = `
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    background: white;
+                    padding: 30px;
+                    border-radius: 12px;
+                    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+                    max-width: 600px;
+                    max-height: 80vh;
+                    overflow-y: auto;
+                    z-index: 10000;
+                `;
+                
+                modal.innerHTML = `
+                    <h3 style="margin-top: 0;">📱 Lista de Transmissão - ${formatarDataBR(data)}</h3>
+                    <textarea readonly style="width: 100%; height: 300px; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-family: monospace; font-size: 12px;">${textoExplicativo}</textarea>
+                    <button onclick="this.parentElement.remove()" style="margin-top: 15px; padding: 10px 20px; background: #3498db; color: white; border: none; border-radius: 6px; cursor: pointer;">Fechar</button>
+                `;
+                
+                document.body.appendChild(modal);
+            }
         }
 
         // Função para buscar estatísticas do Mr Jack no mês atual
@@ -647,14 +766,37 @@ Posso confirmar? ✨`;
             }
         }
 
+        // Função para obter o primeiro e último dia da semana atual
+        function getSemanaDatas() {
+            const hoje = new Date();
+            const diaSemana = hoje.getDay(); // 0 = Domingo, 1 = Segunda, ...
+            
+            // Calcular o primeiro dia da semana (domingo)
+            const primeiroDia = new Date(hoje);
+            primeiroDia.setDate(hoje.getDate() - diaSemana);
+            primeiroDia.setHours(0, 0, 0, 0);
+            
+            // Calcular o último dia da semana (sábado)
+            const ultimoDia = new Date(primeiroDia);
+            ultimoDia.setDate(primeiroDia.getDate() + 6);
+            ultimoDia.setHours(23, 59, 59, 999);
+            
+            return {
+                primeiroDia: primeiroDia.toISOString().split('T')[0],
+                ultimoDia: ultimoDia.toISOString().split('T')[0],
+                primeiroDiaObj: primeiroDia,
+                ultimoDiaObj: ultimoDia
+            };
+        }
+
         // Função para carregar agendamentos do Firebase
         async function carregarAgendamentosFirebase() {
             try {
-                // Data de hoje no formato YYYY-MM-DD
+                // Buscar TODOS os agendamentos a partir de hoje
                 const hoje = new Date();
                 const hojeFormatado = hoje.toISOString().split('T')[0];
                 
-                console.log('Buscando agendamentos a partir de:', hojeFormatado);
+                console.log('Buscando TODOS os agendamentos a partir de:', hojeFormatado);
 
                 const q = query(
                     collection(db, 'agendamentos'),
@@ -862,19 +1004,29 @@ Posso confirmar? ✨`;
         // Função para exibir agendamentos agrupados por data
         function exibirAgendamentosAgrupados(agendamentos) {
             const container = document.getElementById('listaAgendamentos');
+            
+            // Obter informações da semana
+            const { primeiroDiaObj, ultimoDiaObj } = getSemanaDatas();
+            const primeiroDiaFormatado = formatarDataBR(primeiroDiaObj.toISOString().split('T')[0]);
+            const ultimoDiaFormatado = formatarDataBR(ultimoDiaObj.toISOString().split('T')[0]);
 
             if (agendamentos.length === 0) {
                 container.innerHTML = `
                     <div class="no-results">
                         <h3>😊 Nenhum agendamento encontrado</h3>
-                        <p>Não há agendamentos marcados ${dataFiltrada ? 'para esta data' : 'a partir de hoje'}.</p>
+                        <p>Não há agendamentos marcados para a semana atual (${primeiroDiaFormatado} a ${ultimoDiaFormatado}).</p>
                     </div>
                 `;
                 return;
             }
 
             const gruposPorData = agruparPorData(agendamentos);
-            let html = '';
+            let html = `
+                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 12px; margin-bottom: 30px; text-align: center;">
+                    <h2 style="margin: 0; font-size: 1.8em;">📅 Semana de ${primeiroDiaFormatado} a ${ultimoDiaFormatado}</h2>
+                    <p style="margin: 10px 0 0 0; font-size: 1.1em; opacity: 0.95;">Total de ${agendamentos.length} agendamento${agendamentos.length !== 1 ? 's' : ''} na semana</p>
+                </div>
+            `;
             
             // Ordenar as datas
             const datasOrdenadas = Object.keys(gruposPorData).sort();
@@ -882,14 +1034,29 @@ Posso confirmar? ✨`;
             datasOrdenadas.forEach(data => {
                 const agendamentosDoDia = gruposPorData[data];
                 const dataFormatada = formatarDataBR(data);
-                const diaSemana = new Date(data + 'T00:00:00').toLocaleDateString('pt-BR', { weekday: 'long' });
+                const dataObj = new Date(data + 'T00:00:00');
+                const hoje = new Date();
+                hoje.setHours(0, 0, 0, 0);
+                
+                const diaSemana = dataObj.toLocaleDateString('pt-BR', { weekday: 'long' });
+                
+                // Verificar se é hoje, passou ou é futuro
+                let statusDia = '';
+                let corBorda = '#764ba2';
+                if (dataObj < hoje) {
+                    statusDia = ' (Passado)';
+                    corBorda = '#95a5a6';
+                } else if (dataObj.getTime() === hoje.getTime()) {
+                    statusDia = ' ✨ HOJE';
+                    corBorda = '#f5576c';
+                }
                 
                 html += `
                     <div class="agendamentos-do-dia">
-                        <div class="data-header">
+                        <div class="data-header" style="border-left: 6px solid ${corBorda};">
                             <div>
                                 <h2 class="data-titulo">
-                                    📅 ${diaSemana.charAt(0).toUpperCase() + diaSemana.slice(1)}, ${dataFormatada}
+                                    📅 ${diaSemana.charAt(0).toUpperCase() + diaSemana.slice(1)}, ${dataFormatada}${statusDia}
                                 </h2>
                                 <p style="margin: 5px 0 0 0; opacity: 0.9;">${agendamentosDoDia.length} agendamento${agendamentosDoDia.length !== 1 ? 's' : ''}</p>
                             </div>

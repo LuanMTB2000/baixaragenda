@@ -332,6 +332,54 @@
             font-size: 18px;
         }
         
+        .whatsapp-atendimento-btn {
+            background-color: #0088cc;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 13px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s;
+            text-decoration: none;
+            font-weight: 500;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-left: 8px;
+        }
+        
+        .whatsapp-atendimento-btn:hover {
+            background-color: #006699;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        
+        .whatsapp-broadcast-btn {
+            background-color: #128C7E;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+            text-decoration: none;
+            font-weight: 600;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+            margin-left: 10px;
+        }
+        
+        .whatsapp-broadcast-btn:hover {
+            background-color: #075E54;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        
         @media (max-width: 768px) {
             .info-grid {
                 grid-template-columns: 1fr;
@@ -344,7 +392,7 @@
     </style>
 </head>
 <body>
-    <h1>📅 Agendamentos a partir de Hoje</h1>
+    <h1>📅 Todos os Agendamentos</h1>
     
     <div class="buttons-container">
         <button class="refresh-btn" onclick="carregarAgendamentos()">🔄 Atualizar Lista</button>
@@ -440,6 +488,123 @@ Posso confirmar? ✨`;
             
             // Retornar link do WhatsApp
             return `https://wa.me/55${telefoneLimpo}?text=${mensagemCodificada}`;
+        }
+        
+        // Função para gerar link do WhatsApp - Atendimento
+        function gerarLinkWhatsAppAtendimento(telefone, cliente, data, hora) {
+            // Remover caracteres não numéricos do telefone
+            const telefoneLimpo = telefone.replace(/\D/g, '');
+            
+            // Formatar data por extenso
+            const dataExtenso = formatarDataExtenso(data);
+            
+            // Mensagem formatada para atendimento
+            const mensagem = `Confirmando seu atendimento na Mr. Jack para ${dataExtenso} às ${hora} ✨
+
+Estamos te esperando para escolher com carinho o traje ideal para o seu momento especial.
+
+Qualquer imprevisto, é só nos avisar. Até já! 💙`;
+            
+            // Codificar mensagem para URL
+            const mensagemCodificada = encodeURIComponent(mensagem);
+            
+            // Retornar link do WhatsApp
+            return `https://wa.me/55${telefoneLimpo}?text=${mensagemCodificada}`;
+        }
+        
+        // Função para gerar lista de transmissão do WhatsApp
+        function gerarListaTransmissao(data, agendamentos) {
+            // Formatar data por extenso
+            const dataExtenso = formatarDataExtenso(data);
+            
+            // Criar lista de contatos (apenas números)
+            const telefones = agendamentos
+                .map(ag => ag.telefone.replace(/\D/g, ''))
+                .filter(tel => tel.length >= 10) // Apenas telefones válidos
+                .map(tel => `55${tel}`); // Adicionar código do Brasil
+            
+            if (telefones.length === 0) {
+                alert('❌ Nenhum telefone válido encontrado para este dia.');
+                return;
+            }
+            
+            // Mensagem de confirmação
+            const mensagem = `Oii, tudo bem?
+Confirmando sua prova de traje: ${dataExtenso} aqui na Mr. Jack.
+É necessário vir provar, para conferência dos ajustes, se estiver tudo certo, você já leva o traje no mesmo dia.
+Como estamos em alto fluxo, pedimos que chegue no horário combinado pra garantir seu atendimento certinho.
+Posso confirmar? ✨`;
+            
+            // Criar texto explicativo
+            const textoExplicativo = `📱 LISTA DE TRANSMISSÃO - ${formatarDataBR(data)}
+
+Total de contatos: ${telefones.length}
+
+INSTRUÇÕES:
+1. Copie os números abaixo
+2. No WhatsApp, vá em "Nova transmissão" ou "Nova lista de transmissão"
+3. Adicione os contatos (eles precisam ter seu número salvo)
+4. Cole a mensagem que está mais abaixo
+
+NÚMEROS (separados por vírgula):
+${telefones.join(', ')}
+
+━━━━━━━━━━━━━━━━━━━━━━
+
+MENSAGEM PARA ENVIAR:
+
+${mensagem}
+
+━━━━━━━━━━━━━━━━━━━━━━
+
+✅ Dica: Você pode copiar tudo e colar em um arquivo de texto para facilitar!`;
+            
+            // Criar um textarea temporário para copiar
+            const textarea = document.createElement('textarea');
+            textarea.value = textoExplicativo;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            
+            try {
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                
+                alert(`✅ Informações copiadas para a área de transferência!
+
+📱 Total de ${telefones.length} contatos
+📅 Data: ${formatarDataBR(data)}
+
+Cole em um arquivo de texto para usar a lista de transmissão no WhatsApp.`);
+            } catch (err) {
+                document.body.removeChild(textarea);
+                
+                // Se falhar, mostrar em um modal
+                const modal = document.createElement('div');
+                modal.style.cssText = `
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    background: white;
+                    padding: 30px;
+                    border-radius: 12px;
+                    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+                    max-width: 600px;
+                    max-height: 80vh;
+                    overflow-y: auto;
+                    z-index: 10000;
+                `;
+                
+                modal.innerHTML = `
+                    <h3 style="margin-top: 0;">📱 Lista de Transmissão - ${formatarDataBR(data)}</h3>
+                    <textarea readonly style="width: 100%; height: 300px; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-family: monospace; font-size: 12px;">${textoExplicativo}</textarea>
+                    <button onclick="this.parentElement.remove()" style="margin-top: 15px; padding: 10px 20px; background: #3498db; color: white; border: none; border-radius: 6px; cursor: pointer;">Fechar</button>
+                `;
+                
+                document.body.appendChild(modal);
+            }
         }
 
         // Função para buscar estatísticas do Mr Jack no mês atual
@@ -599,7 +764,7 @@ Posso confirmar? ✨`;
                 
                 let html = `
                     <div class="tabela-diaria">
-                        <h2>📊 Atendimentos do MR JACK por Dia - ${hoje.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}</h2>
+                        <h2>👨‍💼 Atendimentos do MR JACK - ${hoje.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }).toUpperCase()}</h2>
                         <table class="tabela-agendamentos">
                             <thead>
                                 <tr>
@@ -630,9 +795,9 @@ Posso confirmar? ✨`;
                 html += `
                             </tbody>
                             <tfoot>
-                                <tr style="background: #f0f0f0; font-weight: bold;">
-                                    <td colspan="2" style="padding: 15px; text-align: right;">TOTAL NO MÊS:</td>
-                                    <td style="text-align: center; padding: 15px; font-size: 1.2em; color: #3498db;">${totalAgendamentos}</td>
+                                <tr>
+                                    <td colspan="2" style="text-align: right; letter-spacing: 1px;">📊 TOTAL NO MÊS:</td>
+                                    <td style="text-align: center;">${totalAgendamentos}</td>
                                 </tr>
                             </tfoot>
                         </table>
@@ -647,14 +812,37 @@ Posso confirmar? ✨`;
             }
         }
 
+        // Função para obter o primeiro e último dia da semana atual
+        function getSemanaDatas() {
+            const hoje = new Date();
+            const diaSemana = hoje.getDay(); // 0 = Domingo, 1 = Segunda, ...
+            
+            // Calcular o primeiro dia da semana (domingo)
+            const primeiroDia = new Date(hoje);
+            primeiroDia.setDate(hoje.getDate() - diaSemana);
+            primeiroDia.setHours(0, 0, 0, 0);
+            
+            // Calcular o último dia da semana (sábado)
+            const ultimoDia = new Date(primeiroDia);
+            ultimoDia.setDate(primeiroDia.getDate() + 6);
+            ultimoDia.setHours(23, 59, 59, 999);
+            
+            return {
+                primeiroDia: primeiroDia.toISOString().split('T')[0],
+                ultimoDia: ultimoDia.toISOString().split('T')[0],
+                primeiroDiaObj: primeiroDia,
+                ultimoDiaObj: ultimoDia
+            };
+        }
+
         // Função para carregar agendamentos do Firebase
         async function carregarAgendamentosFirebase() {
             try {
-                // Data de hoje no formato YYYY-MM-DD
+                // Buscar TODOS os agendamentos a partir de hoje
                 const hoje = new Date();
                 const hojeFormatado = hoje.toISOString().split('T')[0];
                 
-                console.log('Buscando agendamentos a partir de:', hojeFormatado);
+                console.log('Buscando TODOS os agendamentos a partir de:', hojeFormatado);
 
                 const q = query(
                     collection(db, 'agendamentos'),
@@ -862,12 +1050,15 @@ Posso confirmar? ✨`;
         // Função para exibir agendamentos agrupados por data
         function exibirAgendamentosAgrupados(agendamentos) {
             const container = document.getElementById('listaAgendamentos');
+            
+            // Obter informações da semana
+            const { primeiroDiaObj, ultimoDiaObj } = getSemanaDatas();
 
             if (agendamentos.length === 0) {
                 container.innerHTML = `
                     <div class="no-results">
                         <h3>😊 Nenhum agendamento encontrado</h3>
-                        <p>Não há agendamentos marcados ${dataFiltrada ? 'para esta data' : 'a partir de hoje'}.</p>
+                        <p>Não há agendamentos marcados a partir de hoje.</p>
                     </div>
                 `;
                 return;
@@ -882,20 +1073,37 @@ Posso confirmar? ✨`;
             datasOrdenadas.forEach(data => {
                 const agendamentosDoDia = gruposPorData[data];
                 const dataFormatada = formatarDataBR(data);
-                const diaSemana = new Date(data + 'T00:00:00').toLocaleDateString('pt-BR', { weekday: 'long' });
+                const dataObj = new Date(data + 'T00:00:00');
+                const hoje = new Date();
+                hoje.setHours(0, 0, 0, 0);
+                
+                const diaSemana = dataObj.toLocaleDateString('pt-BR', { weekday: 'long' });
+                
+                // Verificar se é hoje
+                let statusDia = '';
+                let corBorda = '#764ba2';
+                if (dataObj.getTime() === hoje.getTime()) {
+                    statusDia = ' ✨ HOJE';
+                    corBorda = '#f5576c';
+                }
                 
                 html += `
                     <div class="agendamentos-do-dia">
-                        <div class="data-header">
+                        <div class="data-header" style="border-left: 6px solid ${corBorda};">
                             <div>
                                 <h2 class="data-titulo">
-                                    📅 ${diaSemana.charAt(0).toUpperCase() + diaSemana.slice(1)}, ${dataFormatada}
+                                    📅 ${diaSemana.charAt(0).toUpperCase() + diaSemana.slice(1)}, ${dataFormatada}${statusDia}
                                 </h2>
                                 <p style="margin: 5px 0 0 0; opacity: 0.9;">${agendamentosDoDia.length} agendamento${agendamentosDoDia.length !== 1 ? 's' : ''}</p>
                             </div>
-                            <button class="pdf-btn" onclick="window.gerarPDFDoDia('${data}', ${JSON.stringify(agendamentosDoDia).replace(/"/g, '&quot;')})">
-                                📄 Baixar PDF
-                            </button>
+                            <div style="display: flex; gap: 10px;">
+                                <button class="whatsapp-broadcast-btn" onclick="window.gerarListaTransmissao('${data}', ${JSON.stringify(agendamentosDoDia).replace(/"/g, '&quot;')})">
+                                    📢 Lista de Transmissão
+                                </button>
+                                <button class="pdf-btn" onclick="window.gerarPDFDoDia('${data}', ${JSON.stringify(agendamentosDoDia).replace(/"/g, '&quot;')})">
+                                    📄 Baixar PDF
+                                </button>
+                            </div>
                         </div>
                 `;
                 
@@ -904,15 +1112,22 @@ Posso confirmar? ✨`;
                 
                 agendamentosDoDia.forEach(agendamento => {
                     const linkWhatsApp = gerarLinkWhatsApp(agendamento.telefone, agendamento.cliente, agendamento.data, agendamento.hora);
+                    const linkWhatsAppAtendimento = gerarLinkWhatsAppAtendimento(agendamento.telefone, agendamento.cliente, agendamento.data, agendamento.hora);
                     
                     html += `
                         <div class="card-agendamento">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 10px;">
                                 <h3 style="margin: 0;">👤 ${agendamento.cliente}</h3>
-                                <a href="${linkWhatsApp}" target="_blank" class="whatsapp-btn">
-                                    <span class="whatsapp-icon">💬</span>
-                                    Confirmar WhatsApp
-                                </a>
+                                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                                    <a href="${linkWhatsApp}" target="_blank" class="whatsapp-btn">
+                                        <span class="whatsapp-icon">💬</span>
+                                        Prova de Traje
+                                    </a>
+                                    <a href="${linkWhatsAppAtendimento}" target="_blank" class="whatsapp-atendimento-btn">
+                                        <span class="whatsapp-icon">💬</span>
+                                        Atendimento
+                                    </a>
+                                </div>
                             </div>
                             
                             <div class="info-grid">
@@ -1184,10 +1399,10 @@ Posso confirmar? ✨`;
         window.filtrarPorData = filtrarPorData;
         window.limparFiltro = limparFiltro;
         window.baixarCSVClientes = baixarCSVClientes;
+        window.gerarListaTransmissao = gerarListaTransmissao;
 
         // Carregar automaticamente quando a página abrir
         document.addEventListener('DOMContentLoaded', carregarAgendamentos);
     </script>
 </body>
 </html>
-

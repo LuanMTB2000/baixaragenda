@@ -839,7 +839,7 @@ Cole em um arquivo de texto para usar a lista de transmissão no WhatsApp.`);
         async function carregarAgendamentosFirebase() {
             try {
                 // Buscar TODOS os agendamentos a partir de hoje
-                const hoje = new Date();
+                const ontem = new Date();
                 const hojeFormatado = hoje.toISOString().split('T')[0];
                 
                 console.log('Buscando TODOS os agendamentos a partir de:', hojeFormatado);
@@ -1406,3 +1406,4 @@ Cole em um arquivo de texto para usar a lista de transmissão no WhatsApp.`);
     </script>
 </body>
 </html>
+

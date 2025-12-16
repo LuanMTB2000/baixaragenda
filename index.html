@@ -838,15 +838,17 @@ Cole em um arquivo de texto para usar a lista de transmissão no WhatsApp.`);
         // Função para carregar agendamentos do Firebase
         async function carregarAgendamentosFirebase() {
             try {
-                // Buscar TODOS os agendamentos a partir de hoje
-                const ontem = new Date();
-                const hojeFormatado = hoje.toISOString().split('T')[0];
+                // Buscar TODOS os agendamentos a partir de ONTEM
+                const hoje = new Date();
+                const ontem = new Date(hoje);
+                ontem.setDate(hoje.getDate() - 1);
+                const ontemFormatado = ontem.toISOString().split('T')[0];
                 
-                console.log('Buscando TODOS os agendamentos a partir de:', hojeFormatado);
+                console.log('Buscando TODOS os agendamentos a partir de:', ontemFormatado);
 
                 const q = query(
                     collection(db, 'agendamentos'),
-                    where('data', '>=', hojeFormatado),
+                    where('data', '>=', ontemFormatado),
                     orderBy('data', 'asc'),
                     orderBy('hora', 'asc')
                 );
@@ -1182,10 +1184,17 @@ Cole em um arquivo de texto para usar a lista de transmissão no WhatsApp.`);
                 return;
             }
             
+            console.log('Filtrando por data:', dataSelecionada);
+            
             dataFiltrada = dataSelecionada;
             
             // Filtrar agendamentos da data selecionada
-            const agendamentosFiltrados = todosAgendamentos.filter(ag => ag.data === dataSelecionada);
+            const agendamentosFiltrados = todosAgendamentos.filter(ag => {
+                console.log('Comparando:', ag.data, '===', dataSelecionada);
+                return ag.data === dataSelecionada;
+            });
+            
+            console.log('Agendamentos filtrados:', agendamentosFiltrados.length);
             
             // Exibir indicador de filtro ativo
             const filtroContainer = document.getElementById('filtroAtivo');
@@ -1207,12 +1216,17 @@ Cole em um arquivo de texto para usar a lista de transmissão no WhatsApp.`);
         
         // Função para limpar filtro
         function limparFiltro() {
+            console.log('Limpando filtro...');
             dataFiltrada = null;
             document.getElementById('dataBusca').value = '';
             document.getElementById('filtroAtivo').innerHTML = '';
             
             // Exibir todos os agendamentos novamente
-            exibirAgendamentosAgrupados(todosAgendamentos);
+            if (todosAgendamentos && todosAgendamentos.length > 0) {
+                exibirAgendamentosAgrupados(todosAgendamentos);
+            } else {
+                console.log('Nenhum agendamento para exibir');
+            }
         }
         
         // Função para baixar CSV com nomes dos clientes do mês atual
@@ -1406,4 +1420,3 @@ Cole em um arquivo de texto para usar a lista de transmissão no WhatsApp.`);
     </script>
 </body>
 </html>
-

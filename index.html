@@ -356,6 +356,72 @@
             box-shadow: 0 4px 8px rgba(0,0,0,0.15);
         }
         
+        .confirmar-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .confirmar-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+        }
+        
+        .confirmar-btn:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+        
+        .confirmado-badge {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        }
+        
+        .contador-confirmacoes {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 12px;
+            margin: 20px 0;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .contador-confirmacoes h3 {
+            margin: 0 0 10px 0;
+            font-size: 1.3em;
+        }
+        
+        .contador-numero {
+            font-size: 3em;
+            font-weight: 700;
+            margin: 10px 0;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
         .whatsapp-broadcast-btn {
             background-color: #128C7E;
             color: white;
@@ -397,6 +463,12 @@
     <div class="buttons-container">
         <button class="refresh-btn" onclick="carregarAgendamentos()">🔄 Atualizar Lista</button>
         <button class="csv-btn" onclick="baixarCSVClientes()">📊 Baixar CSV de Clientes</button>
+    </div>
+    
+    <div class="contador-confirmacoes">
+        <h3>✅ Total de Confirmações</h3>
+        <div class="contador-numero" id="contadorDisplay">50</div>
+        <p style="margin: 0; opacity: 0.9;">agendamentos confirmados</p>
     </div>
     
     <div class="search-container">
@@ -513,6 +585,39 @@ Qualquer imprevisto, é só nos avisar. Até já! 💙`;
             
             // Retornar link do WhatsApp
             return `https://wa.me/55${telefoneLimpo}?text=${mensagemCodificada}`;
+        }
+        
+        // Função para confirmar agendamento
+        function confirmarAgendamento(botao, agendamentoId) {
+            // Incrementar contador
+            contadorConfirmacoes++;
+            
+            // Atualizar display do contador
+            document.getElementById('contadorDisplay').textContent = contadorConfirmacoes;
+            
+            // Substituir botão por badge de confirmado
+            const badge = document.createElement('div');
+            badge.className = 'confirmado-badge';
+            badge.innerHTML = '✅ Confirmado (#' + contadorConfirmacoes + ')';
+            
+            botao.parentElement.replaceChild(badge, botao);
+            
+            // Salvar no localStorage para persistir
+            localStorage.setItem('contadorConfirmacoes', contadorConfirmacoes);
+            
+            // Feedback visual
+            badge.style.animation = 'pulse 0.5s';
+            
+            console.log(`Agendamento ${agendamentoId} confirmado! Total: ${contadorConfirmacoes}`);
+        }
+        
+        // Carregar contador do localStorage ao iniciar
+        function carregarContador() {
+            const contadorSalvo = localStorage.getItem('contadorConfirmacoes');
+            if (contadorSalvo) {
+                contadorConfirmacoes = parseInt(contadorSalvo);
+                document.getElementById('contadorDisplay').textContent = contadorConfirmacoes;
+            }
         }
         
         // Função para gerar lista de transmissão do WhatsApp
@@ -1167,6 +1272,12 @@ Cole em um arquivo de texto para usar a lista de transmissão no WhatsApp.`);
                                     <strong>📝 Observações:</strong> ${agendamento.observacoes}
                                 </div>
                             ` : ''}
+                            
+                            <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e0e0e0; text-align: center;">
+                                <button class="confirmar-btn" id="btn-${agendamento.id}" onclick="window.confirmarAgendamento(this, '${agendamento.id}')">
+                                    ✅ Confirmar Agendamento
+                                </button>
+                            </div>
                         </div>
                     `;
                 });
@@ -1417,9 +1528,13 @@ Cole em um arquivo de texto para usar a lista de transmissão no WhatsApp.`);
         window.limparFiltro = limparFiltro;
         window.baixarCSVClientes = baixarCSVClientes;
         window.gerarListaTransmissao = gerarListaTransmissao;
+        window.confirmarAgendamento = confirmarAgendamento;
 
         // Carregar automaticamente quando a página abrir
-        document.addEventListener('DOMContentLoaded', carregarAgendamentos);
+        document.addEventListener('DOMContentLoaded', () => {
+            carregarContador();
+            carregarAgendamentos();
+        });
     </script>
 </body>
 </html>

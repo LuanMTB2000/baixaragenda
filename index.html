@@ -451,6 +451,9 @@
         // Variável global para armazenar todos os agendamentos
         let todosAgendamentos = [];
         let dataFiltrada = null;
+        
+        // Contador de confirmações (inicia em 50)
+        let contadorConfirmacoes = 50;
 
         // Função para formatar data brasileira
         function formatarDataBR(dataString) {

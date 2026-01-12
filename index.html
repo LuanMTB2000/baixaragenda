@@ -221,6 +221,126 @@
             align-items: center;
         }
         
+        .tabela-diaria {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 25px 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            border: 1px solid #e8e8e8;
+        }
+        
+        .tabela-diaria h2 {
+            color: #2c3e50;
+            margin-top: 0;
+            margin-bottom: 25px;
+            font-size: 1.6em;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #f093fb;
+        }
+        
+        .tabela-agendamentos {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-top: 20px;
+            overflow: hidden;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        
+        .tabela-agendamentos thead {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+        
+        .tabela-agendamentos th {
+            padding: 16px 20px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.95em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border: none;
+        }
+        
+        .tabela-agendamentos th:first-child {
+            border-radius: 8px 0 0 0;
+        }
+        
+        .tabela-agendamentos th:last-child {
+            border-radius: 0 8px 0 0;
+        }
+        
+        .tabela-agendamentos td {
+            padding: 14px 20px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .tabela-agendamentos tbody tr {
+            transition: all 0.2s ease;
+        }
+        
+        .tabela-agendamentos tbody tr:hover {
+            background-color: #f8f9ff;
+            transform: scale(1.01);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        }
+        
+        .tabela-agendamentos tbody tr:nth-child(even) {
+            background-color: #fafbfc;
+        }
+        
+        .tabela-agendamentos tbody tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .numero-agendamentos {
+            font-weight: 700;
+            color: #f5576c;
+            font-size: 1.3em;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .data-tabela {
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 0.95em;
+        }
+        
+        .dia-semana {
+            color: #7f8c8d;
+            font-size: 0.9em;
+            font-style: italic;
+        }
+        
+        .tabela-agendamentos tfoot tr {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .tabela-agendamentos tfoot td {
+            padding: 18px 20px;
+            font-weight: 700;
+            font-size: 1.05em;
+            border: none;
+        }
+        
+        .tabela-agendamentos tfoot td:first-child {
+            border-radius: 0 0 0 8px;
+        }
+        
+        .tabela-agendamentos tfoot td:last-child {
+            border-radius: 0 0 8px 0;
+            font-size: 1.4em;
+        }
+        
         .data-header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
@@ -263,46 +383,68 @@
         }
         
         .estatisticas-mrjack {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            background: linear-gradient(135deg, #ff6ec7 0%, #ff8fa3 100%);
             color: white;
-            padding: 25px;
-            border-radius: 12px;
+            padding: 30px;
+            border-radius: 16px;
             margin: 20px 0;
-            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+            box-shadow: 0 8px 24px rgba(255, 110, 199, 0.3);
         }
         
         .estatisticas-mrjack h2 {
-            margin: 0 0 15px 0;
+            margin: 0 0 10px 0;
             font-size: 1.8em;
             display: flex;
             align-items: center;
             gap: 10px;
+            font-weight: 700;
+        }
+        
+        .estatisticas-subtitle {
+            font-size: 1em;
+            opacity: 0.95;
+            margin: 0 0 25px 0;
+            font-weight: 400;
         }
         
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-top: 15px;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
         }
         
         .stat-card {
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.25);
             backdrop-filter: blur(10px);
-            padding: 15px;
-            border-radius: 8px;
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 25px 20px;
+            border-radius: 12px;
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            transition: all 0.3s ease;
         }
         
-        .stat-number {
-            font-size: 2.5em;
-            font-weight: bold;
-            margin: 10px 0;
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
         }
         
         .stat-label {
-            font-size: 0.9em;
-            opacity: 0.95;
+            font-size: 0.85em;
+            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .stat-number {
+            font-size: 3.5em;
+            font-weight: 800;
+            margin: 5px 0;
+            line-height: 1;
         }
         
         .whatsapp-btn {
@@ -356,6 +498,30 @@
             box-shadow: 0 4px 8px rgba(0,0,0,0.15);
         }
         
+        .whatsapp-broadcast-btn {
+            background-color: #128C7E;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+            text-decoration: none;
+            font-weight: 600;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+            margin-left: 10px;
+        }
+        
+        .whatsapp-broadcast-btn:hover {
+            background-color: #075E54;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        
         .confirmar-btn {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
@@ -383,6 +549,28 @@
             opacity: 0.6;
         }
         
+        .cancelar-btn {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-left: 10px;
+        }
+        
+        .cancelar-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+        }
+        
         .confirmado-badge {
             background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
             color: white;
@@ -397,53 +585,39 @@
         }
         
         .contador-confirmacoes {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            background: linear-gradient(135deg, #ff6ec7 0%, #ff8fa3 100%);
             color: white;
-            padding: 20px 30px;
-            border-radius: 12px;
+            padding: 30px;
+            border-radius: 16px;
             margin: 20px 0;
             text-align: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            box-shadow: 0 8px 24px rgba(255, 110, 199, 0.3);
         }
         
         .contador-confirmacoes h3 {
-            margin: 0 0 10px 0;
-            font-size: 1.3em;
+            margin: 0 0 5px 0;
+            font-size: 1.2em;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
         
         .contador-numero {
-            font-size: 3em;
-            font-weight: 700;
+            font-size: 4em;
+            font-weight: 800;
             margin: 10px 0;
+            line-height: 1;
+        }
+        
+        .contador-confirmacoes p {
+            margin: 5px 0 0 0;
+            opacity: 0.9;
+            font-size: 0.95em;
         }
         
         @keyframes pulse {
             0%, 100% { transform: scale(1); }
             50% { transform: scale(1.1); }
-        }
-        
-        .whatsapp-broadcast-btn {
-            background-color: #128C7E;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 14px;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.3s;
-            text-decoration: none;
-            font-weight: 600;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-            margin-left: 10px;
-        }
-        
-        .whatsapp-broadcast-btn:hover {
-            background-color: #075E54;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
         }
         
         @media (max-width: 768px) {
@@ -468,7 +642,7 @@
     <div class="contador-confirmacoes">
         <h3>✅ Total de Confirmações</h3>
         <div class="contador-numero" id="contadorDisplay">50</div>
-        <p style="margin: 0; opacity: 0.9;">agendamentos confirmados</p>
+        <p>agendamentos confirmados</p>
     </div>
     
     <div class="search-container">
@@ -503,7 +677,7 @@
     <script type="module">
         // Importar Firebase SDK v10
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js';
-        import { getFirestore, collection, query, where, getDocs, orderBy } from 'https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js';
+        import { getFirestore, collection, query, where, getDocs, orderBy, doc, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js';
 
         // Configuração do Firebase - Agenda Mr. Jack
         const firebaseConfig = {
@@ -545,97 +719,6 @@
 
         // Função para gerar link do WhatsApp
         function gerarLinkWhatsApp(telefone, cliente, data, hora) {
-            // Remover caracteres não numéricos do telefone
-            const telefoneLimpo = telefone.replace(/\D/g, '');
-            
-            // Formatar data por extenso
-            const dataExtenso = formatarDataExtenso(data);
-            
-            // Mensagem formatada
-            const mensagem = `Oii, tudo bem?
-Confirmando sua prova de traje: ${dataExtenso} às ${hora} aqui na Mr. Jack.
-É necessário vir provar, para conferência dos ajustes, se estiver tudo certo, você já leva o traje no mesmo dia.
-Como estamos em alto fluxo, pedimos que chegue no horário combinado pra garantir seu atendimento certinho.
-Posso confirmar? ✨`;
-            
-            // Codificar mensagem para URL
-            const mensagemCodificada = encodeURIComponent(mensagem);
-            
-            // Retornar link do WhatsApp
-            return `https://wa.me/55${telefoneLimpo}?text=${mensagemCodificada}`;
-        }
-        
-        // Função para gerar link do WhatsApp - Atendimento
-        function gerarLinkWhatsAppAtendimento(telefone, cliente, data, hora) {
-            // Remover caracteres não numéricos do telefone
-            const telefoneLimpo = telefone.replace(/\D/g, '');
-            
-            // Formatar data por extenso
-            const dataExtenso = formatarDataExtenso(data);
-            
-            // Mensagem formatada para atendimento
-            const mensagem = `Confirmando seu atendimento na Mr. Jack para ${dataExtenso} às ${hora} ✨
-
-Estamos te esperando para escolher com carinho o traje ideal para o seu momento especial.
-
-Qualquer imprevisto, é só nos avisar. Até já! 💙`;
-            
-            // Codificar mensagem para URL
-            const mensagemCodificada = encodeURIComponent(mensagem);
-            
-            // Retornar link do WhatsApp
-            return `https://wa.me/55${telefoneLimpo}?text=${mensagemCodificada}`;
-        }
-        
-        // Função para confirmar agendamento
-        function confirmarAgendamento(botao, agendamentoId) {
-            // Incrementar contador
-            contadorConfirmacoes++;
-            
-            // Atualizar display do contador
-            document.getElementById('contadorDisplay').textContent = contadorConfirmacoes;
-            
-            // Substituir botão por badge de confirmado
-            const badge = document.createElement('div');
-            badge.className = 'confirmado-badge';
-            badge.innerHTML = '✅ Confirmado (#' + contadorConfirmacoes + ')';
-            
-            botao.parentElement.replaceChild(badge, botao);
-            
-            // Salvar no localStorage para persistir
-            localStorage.setItem('contadorConfirmacoes', contadorConfirmacoes);
-            
-            // Feedback visual
-            badge.style.animation = 'pulse 0.5s';
-            
-            console.log(`Agendamento ${agendamentoId} confirmado! Total: ${contadorConfirmacoes}`);
-        }
-        
-        // Carregar contador do localStorage ao iniciar
-        function carregarContador() {
-            const contadorSalvo = localStorage.getItem('contadorConfirmacoes');
-            if (contadorSalvo) {
-                contadorConfirmacoes = parseInt(contadorSalvo);
-                document.getElementById('contadorDisplay').textContent = contadorConfirmacoes;
-            }
-        }
-        
-        // Função para gerar lista de transmissão do WhatsApp
-        function gerarListaTransmissao(data, agendamentos) {
-            // Formatar data por extenso
-            const dataExtenso = formatarDataExtenso(data);
-            
-            // Criar lista de contatos (apenas números)
-            const telefones = agendamentos
-                .map(ag => ag.telefone.replace(/\D/g, ''))
-                .filter(tel => tel.length >= 10) // Apenas telefones válidos
-                .map(tel => `55${tel}`); // Adicionar código do Brasil
-            
-            if (telefones.length === 0) {
-                alert('❌ Nenhum telefone válido encontrado para este dia.');
-                return;
-            }
-            
             // Mensagem de confirmação
             const mensagem = `Oii, tudo bem?
 Confirmando sua prova de traje: ${dataExtenso} aqui na Mr. Jack.
@@ -715,16 +798,19 @@ Cole em um arquivo de texto para usar a lista de transmissão no WhatsApp.`);
             }
         }
 
-        // Função para buscar estatísticas do Mr Jack no mês atual
+        // Função para buscar estatísticas do Mr Jack no mês anterior
         async function buscarEstatisticasMrJack() {
             try {
                 const hoje = new Date();
-                const ano = hoje.getFullYear();
-                const mes = String(hoje.getMonth() + 1).padStart(2, '0');
+                
+                // Mês PASSADO
+                const mesParaExibir = hoje.getMonth() - 1;
+                const ano = mesParaExibir < 0 ? hoje.getFullYear() - 1 : hoje.getFullYear();
+                const mes = String(mesParaExibir < 0 ? 12 : mesParaExibir + 1).padStart(2, '0');
                 
                 // Primeiro e último dia do mês
                 const primeiroDia = `${ano}-${mes}-01`;
-                const ultimoDia = `${ano}-${mes}-${new Date(ano, hoje.getMonth() + 1, 0).getDate()}`;
+                const ultimoDia = `${ano}-${mes}-${new Date(ano, mesParaExibir + 1, 0).getDate()}`;
                 
                 console.log(`Buscando agendamentos do Mr Jack entre ${primeiroDia} e ${ultimoDia}`);
                 
@@ -761,10 +847,13 @@ Cole em um arquivo de texto para usar a lista de transmissão no WhatsApp.`);
                     }
                 });
                 
+                const dataMes = new Date(ano, mesParaExibir, 1);
+                const mesNome = dataMes.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+                
                 return {
                     total: totalMrJack,
                     porStatus: porStatus,
-                    mesNome: hoje.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })
+                    mesNome: mesNome
                 };
                 
             } catch (error) {
@@ -787,7 +876,7 @@ Cole em um arquivo de texto para usar a lista de transmissão no WhatsApp.`);
                     <h2>
                         👨‍💼 Estatísticas - MR JACK
                     </h2>
-                    <p style="margin: 0; opacity: 0.95; font-size: 1.1em;">
+                    <p class="estatisticas-subtitle">
                         Agendamentos em ${stats.mesNome}
                     </p>
                     
@@ -815,21 +904,27 @@ Cole em um arquivo de texto para usar a lista de transmissão no WhatsApp.`);
                 </div>
             `;
         }
-        
+
         // Função para exibir tabela de agendamentos por dia
         async function exibirTabelaDiaria() {
             const container = document.getElementById('tabelaDiaria');
             
             try {
                 const hoje = new Date();
-                const ano = hoje.getFullYear();
-                const mes = String(hoje.getMonth() + 1).padStart(2, '0');
+                
+                // Mês PASSADO
+                const mesParaExibir = hoje.getMonth() - 1;
+                
+                const ano = mesParaExibir < 0 ? hoje.getFullYear() - 1 : hoje.getFullYear();
+                const mes = String(mesParaExibir < 0 ? 12 : mesParaExibir + 1).padStart(2, '0');
                 
                 // Primeiro e último dia do mês
                 const primeiroDia = `${ano}-${mes}-01`;
-                const ultimoDia = `${ano}-${mes}-${new Date(ano, hoje.getMonth() + 1, 0).getDate()}`;
+                const ultimoDia = `${ano}-${mes}-${new Date(ano, mesParaExibir + 1, 0).getDate()}`;
                 
-                // Buscar agendamentos do Mr Jack no mês atual
+                console.log(`Buscando agendamentos do Mr Jack entre ${primeiroDia} e ${ultimoDia}`);
+                
+                // Buscar agendamentos do Mr Jack no mês
                 const q = query(
                     collection(db, 'agendamentos'),
                     where('data', '>=', primeiroDia),
@@ -870,9 +965,13 @@ Cole em um arquivo de texto para usar a lista de transmissão no WhatsApp.`);
                 // Calcular total
                 const totalAgendamentos = Object.values(agendamentosPorDia).reduce((a, b) => a + b, 0);
                 
+                // Nome do mês para exibição
+                const dataMes = new Date(ano, mesParaExibir, 1);
+                const mesNome = dataMes.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+                
                 let html = `
                     <div class="tabela-diaria">
-                        <h2>👨‍💼 Atendimentos do MR JACK - ${hoje.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }).toUpperCase()}</h2>
+                        <h2>👨‍💼 Atendimentos do MR JACK - ${mesNome.toUpperCase()}</h2>
                         <table class="tabela-agendamentos">
                             <thead>
                                 <tr>
@@ -1035,89 +1134,61 @@ Cole em um arquivo de texto para usar a lista de transmissão no WhatsApp.`);
                 doc.setTextColor(100, 100, 100);
                 doc.text('Nenhum agendamento para este dia.', 20, yPosition);
             } else {
-                // Cabeçalho da tabela
-                doc.setFontSize(9);
-                doc.setTextColor(60, 60, 60);
-                doc.setFont('helvetica', 'bold');
-                doc.text('HORÁRIO', 20, yPosition);
-                doc.text('CLIENTE', 45, yPosition);
-                doc.text('TELEFONE', 95, yPosition);
-                doc.text('FUNCIONÁRIO', 135, yPosition);
-                doc.text('SERVIÇO', 175, yPosition);
-                
-                // Linha do cabeçalho
-                doc.setDrawColor(200, 200, 200);
-                doc.setLineWidth(0.3);
-                doc.line(20, yPosition + 2, 190, yPosition + 2);
-                
-                yPosition += 10;
-                
                 // Ordenar por hora
                 agendamentos.sort((a, b) => a.hora.localeCompare(b.hora));
                 
                 agendamentos.forEach((agendamento, index) => {
                     // Verificar se precisa de nova página
-                    if (yPosition > 270) {
+                    if (yPosition > 250) {
                         doc.addPage();
                         yPosition = 30;
-                        
-                        // Repetir cabeçalho na nova página
-                        doc.setFontSize(9);
-                        doc.setTextColor(60, 60, 60);
-                        doc.setFont('helvetica', 'bold');
-                        doc.text('HORÁRIO', 20, yPosition);
-                        doc.text('CLIENTE', 45, yPosition);
-                        doc.text('TELEFONE', 95, yPosition);
-                        doc.text('FUNCIONÁRIO', 135, yPosition);
-                        doc.text('SERVIÇO', 175, yPosition);
-                        doc.line(20, yPosition + 2, 190, yPosition + 2);
-                        yPosition += 10;
                     }
                     
-                    // Alternar cor de fundo das linhas
-                    if (index % 2 === 0) {
-                        doc.setFillColor(248, 249, 250);
-                        doc.rect(15, yPosition - 3, 180, 8, 'F');
-                    }
-                    
-                    // Horário
-                    doc.setFontSize(9);
+                    // Cliente e Horário
+                    doc.setFontSize(12);
                     doc.setTextColor(40, 40, 40);
                     doc.setFont('helvetica', 'bold');
-                    doc.text(agendamento.hora, 20, yPosition);
+                    doc.text(`${agendamento.hora} - ${agendamento.cliente}`, 20, yPosition);
+                    yPosition += 7;
                     
-                    // Cliente (limitado para caber na linha)
+                    // Informações
+                    doc.setFontSize(10);
                     doc.setFont('helvetica', 'normal');
-                    let cliente = agendamento.cliente.length > 16 ? 
-                                 agendamento.cliente.substring(0, 16) + '...' : 
-                                 agendamento.cliente;
-                    doc.text(cliente, 45, yPosition);
+                    doc.setTextColor(60, 60, 60);
+                    doc.text(`Telefone: ${agendamento.telefone}`, 25, yPosition);
+                    yPosition += 5;
+                    doc.text(`Funcionário: ${agendamento.funcionario}`, 25, yPosition);
+                    yPosition += 5;
+                    doc.text(`Serviço: ${agendamento.servico}`, 25, yPosition);
+                    yPosition += 5;
                     
-                    // Telefone
-                    let telefone = agendamento.telefone.length > 13 ? 
-                                  agendamento.telefone.substring(0, 13) + '...' : 
-                                  agendamento.telefone;
-                    doc.text(telefone, 95, yPosition);
+                    // Observações (se houver)
+                    if (agendamento.observacoes) {
+                        doc.setFont('helvetica', 'italic');
+                        doc.setTextColor(80, 80, 80);
+                        
+                        // Quebrar texto longo
+                        const obsLines = doc.splitTextToSize(`Obs: ${agendamento.observacoes}`, 160);
+                        obsLines.forEach(line => {
+                            if (yPosition > 270) {
+                                doc.addPage();
+                                yPosition = 30;
+                            }
+                            doc.text(line, 25, yPosition);
+                            yPosition += 5;
+                        });
+                    }
                     
-                    // Funcionário
-                    let funcionario = agendamento.funcionario.length > 13 ? 
-                                     agendamento.funcionario.substring(0, 13) + '...' : 
-                                     agendamento.funcionario;
-                    doc.text(funcionario, 135, yPosition);
-                    
-                    // Serviço (limitado para caber na linha)
-                    doc.setTextColor(40, 40, 40);
-                    doc.setFont('helvetica', 'normal');
-                    let servico = agendamento.servico.length > 15 ? 
-                                 agendamento.servico.substring(0, 15) + '...' : 
-                                 agendamento.servico;
-                    doc.text(servico, 175, yPosition);
-                    
+                    // Linha separadora entre agendamentos
+                    yPosition += 3;
+                    doc.setDrawColor(200, 200, 200);
+                    doc.setLineWidth(0.3);
+                    doc.line(20, yPosition, 190, yPosition);
                     yPosition += 8;
                 });
                 
                 // Resumo no final
-                yPosition += 15;
+                yPosition += 10;
                 if (yPosition > 260) {
                     doc.addPage();
                     yPosition = 30;
@@ -1125,26 +1196,12 @@ Cole em um arquivo de texto para usar a lista de transmissão no WhatsApp.`);
                 
                 // Box do resumo
                 doc.setFillColor(52, 152, 219);
-                doc.roundedRect(15, yPosition - 5, 180, 20, 3, 3, 'F');
+                doc.roundedRect(15, yPosition - 5, 180, 15, 3, 3, 'F');
                 
                 doc.setFontSize(11);
                 doc.setTextColor(255, 255, 255);
                 doc.setFont('helvetica', 'bold');
                 doc.text(`TOTAL: ${agendamentos.length} agendamentos`, 20, yPosition + 3);
-                
-                // Contagem por status na mesma linha
-                const statusCount = agendamentos.reduce((acc, ag) => {
-                    acc[ag.status] = (acc[ag.status] || 0) + 1;
-                    return acc;
-                }, {});
-                
-                let statusText = '';
-                Object.entries(statusCount).forEach(([status, count]) => {
-                    statusText += `${status}: ${count}  `;
-                });
-                
-                doc.setFontSize(9);
-                doc.text(statusText, 20, yPosition + 10);
             }
             
             // Rodapé
@@ -1225,7 +1282,7 @@ Cole em um arquivo de texto para usar a lista de transmissão no WhatsApp.`);
                     const linkWhatsAppAtendimento = gerarLinkWhatsAppAtendimento(agendamento.telefone, agendamento.cliente, agendamento.data, agendamento.hora);
                     
                     html += `
-                        <div class="card-agendamento">
+                        <div class="card-agendamento" id="card-${agendamento.id}">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 10px;">
                                 <h3 style="margin: 0;">👤 ${agendamento.cliente}</h3>
                                 <div style="display: flex; gap: 8px; flex-wrap: wrap;">
@@ -1274,8 +1331,11 @@ Cole em um arquivo de texto para usar a lista de transmissão no WhatsApp.`);
                             ` : ''}
                             
                             <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e0e0e0; text-align: center;">
-                                <button class="confirmar-btn" id="btn-${agendamento.id}" onclick="window.confirmarAgendamento(this, '${agendamento.id}')">
+                                <button class="confirmar-btn" id="btn-confirmar-${agendamento.id}" onclick="window.confirmarAgendamento('${agendamento.id}')">
                                     ✅ Confirmar Agendamento
+                                </button>
+                                <button class="cancelar-btn" onclick="window.cancelarAgendamento('${agendamento.id}')">
+                                    ❌ Cancelar
                                 </button>
                             </div>
                         </div>
@@ -1342,199 +1402,145 @@ Cole em um arquivo de texto para usar a lista de transmissão no WhatsApp.`);
                 console.log('Nenhum agendamento para exibir');
             }
         }
-        
+
         // Função para baixar CSV com nomes dos clientes do mês atual
         async function baixarCSVClientes() {
             try {
                 // Mostrar loading
                 const btnCSV = document.querySelector('.csv-btn');
                 const textoOriginal = btnCSV.innerHTML;
-                btnCSV.innerHTML = '⏳ Gerando CSV...';
-                btnCSV.disabled = true;
-                
-                const hoje = new Date();
-                const ano = hoje.getFullYear();
-                const mes = String(hoje.getMonth() + 1).padStart(2, '0');
-                
-                // Primeiro e último dia do mês
-                const primeiroDia = `${ano}-${mes}-01`;
-                const ultimoDia = `${ano}-${mes}-${new Date(ano, hoje.getMonth() + 1, 0).getDate()}`;
-                
-                console.log(`Buscando clientes agendados entre ${primeiroDia} e ${ultimoDia}`);
-                
-                // Buscar agendamentos do mês atual
-                const q = query(
-                    collection(db, 'agendamentos'),
-                    where('data', '>=', primeiroDia),
-                    where('data', '<=', ultimoDia),
-                    orderBy('data', 'asc')
-                );
-
-                const querySnapshot = await getDocs(q);
-                
-                // Restaurar botão
-                btnCSV.innerHTML = textoOriginal;
-                btnCSV.disabled = false;
-                
-                if (querySnapshot.empty) {
-                    alert('❌ Nenhum agendamento encontrado no mês atual.');
-                    return;
-                }
-                
-                const nomesClientes = [];
-                
-                querySnapshot.forEach((doc) => {
-                    const dados = doc.data();
-                    if (dados.cliente) {
-                        nomesClientes.push(dados.cliente);
-                    }
-                });
-                
-                if (nomesClientes.length === 0) {
-                    alert('❌ Nenhum cliente encontrado nos agendamentos do mês atual.');
-                    return;
-                }
-                
-                // Remover duplicatas
-                const nomesUnicos = [...new Set(nomesClientes)];
-                
-                // Ordenar alfabeticamente
-                nomesUnicos.sort();
-                
-                // Criar conteúdo CSV com BOM para UTF-8
-                const BOM = '\uFEFF';
-                let csvContent = BOM + "Nome do Cliente\n"; // Cabeçalho
-                
-                nomesUnicos.forEach(nome => {
-                    csvContent += `"${nome}"\n`;
-                });
-                
-                // Criar blob e download
-                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-                const link = document.createElement('a');
-                
-                // Nome do arquivo com mês e ano
-                const mesNome = hoje.toLocaleDateString('pt-BR', { month: 'long' });
-                const nomeArquivo = `clientes_${mesNome}_${ano}.csv`;
-                
-                // Criar link de download
-                const url = URL.createObjectURL(blob);
-                link.href = url;
-                link.download = nomeArquivo;
-                link.style.display = 'none';
-                document.body.appendChild(link);
-                link.click();
-                
-                // Limpar
-                setTimeout(() => {
-                    document.body.removeChild(link);
-                    URL.revokeObjectURL(url);
-                }, 100);
-                
-                console.log(`✅ CSV gerado com ${nomesUnicos.length} clientes únicos do mês ${mes}/${ano}`);
-                alert(`✅ CSV baixado com sucesso!\n\nMês: ${mesNome}/${ano}\nTotal de clientes únicos: ${nomesUnicos.length}\nTotal de agendamentos: ${nomesClientes.length}`);
-                
-            } catch (error) {
-                console.error('Erro ao gerar CSV:', error);
-                
-                // Restaurar botão em caso de erro
-                const btnCSV = document.querySelector('.csv-btn');
-                if (btnCSV) {
-                    btnCSV.innerHTML = '📊 Baixar CSV de Clientes';
-                    btnCSV.disabled = false;
-                }
-                
-                alert(`❌ Erro ao gerar CSV: ${error.message}\n\nVerifique o console para mais detalhes.`);
-            }
+                btnCSV.innerHTML Remover caracteres não numéricos do telefone
+            const telefoneLimpo = telefone.replace(/\D/g, '');
+            
+            // Formatar data por extenso
+            const dataExtenso = formatarDataExtenso(data);
+            
+            // Mensagem formatada
+            const mensagem = `Oii, tudo bem?
+Confirmando sua prova de traje: ${dataExtenso} às ${hora} aqui na Mr. Jack.
+É necessário vir provar, para conferência dos ajustes, se estiver tudo certo, você já leva o traje no mesmo dia.
+Como estamos em alto fluxo, pedimos que chegue no horário combinado pra garantir seu atendimento certinho.
+Posso confirmar? ✨`;
+            
+            // Codificar mensagem para URL
+            const mensagemCodificada = encodeURIComponent(mensagem);
+            
+            // Retornar link do WhatsApp
+            return `https://wa.me/55${telefoneLimpo}?text=${mensagemCodificada}`;
         }
+        
+        // Função para gerar link do WhatsApp - Atendimento
+        function gerarLinkWhatsAppAtendimento(telefone, cliente, data, hora) {
+            // Remover caracteres não numéricos do telefone
+            const telefoneLimpo = telefone.replace(/\D/g, '');
+            
+            // Formatar data por extenso
+            const dataExtenso = formatarDataExtenso(data);
+            
+            // Mensagem formatada para atendimento
+            const mensagem = `Confirmando seu atendimento na Mr. Jack para ${dataExtenso} às ${hora} ✨
 
-        // Função principal com debug
-        async function carregarAgendamentos() {
-            const container = document.getElementById('listaAgendamentos');
+Estamos te esperando para escolher com carinho o traje ideal para o seu momento especial.
+
+Qualquer imprevisto, é só nos avisar. Até já! 💙`;
+            
+            // Codificar mensagem para URL
+            const mensagemCodificada = encodeURIComponent(mensagem);
+            
+            // Retornar link do WhatsApp
+            return `https://wa.me/55${telefoneLimpo}?text=${mensagemCodificada}`;
+        }
+        
+        // Função para confirmar agendamento
+        function confirmarAgendamento(agendamentoId) {
+            console.log('Confirmando agendamento:', agendamentoId);
+            
+            // Incrementar contador
+            contadorConfirmacoes++;
+            
+            // Atualizar display do contador
+            const displayContador = document.getElementById('contadorDisplay');
+            if (displayContador) {
+                displayContador.textContent = contadorConfirmacoes;
+                console.log('Contador atualizado para:', contadorConfirmacoes);
+            }
+            
+            // Encontrar o botão e substituir por badge
+            const botao = document.getElementById('btn-confirmar-' + agendamentoId);
+            if (botao) {
+                const badge = document.createElement('div');
+                badge.className = 'confirmado-badge';
+                badge.innerHTML = '✅ Confirmado (#' + contadorConfirmacoes + ')';
+                
+                botao.parentElement.replaceChild(badge, botao);
+                
+                // Animação
+                badge.style.animation = 'pulse 0.5s';
+            }
+            
+            // Salvar no localStorage para persistir
+            localStorage.setItem('contadorConfirmacoes', contadorConfirmacoes);
+            
+            console.log(`Agendamento ${agendamentoId} confirmado! Total: ${contadorConfirmacoes}`);
+        }
+        
+        // Função para cancelar agendamento
+        async function cancelarAgendamento(agendamentoId) {
+            if (!confirm('Tem certeza que deseja CANCELAR este agendamento? Ele será removido da lista.')) {
+                return;
+            }
             
             try {
-                container.innerHTML = '<div class="loading">⏳ Carregando agendamentos...</div>';
+                // Deletar do Firebase
+                await deleteDoc(doc(db, 'agendamentos', agendamentoId));
                 
-                // Buscar estatísticas do Mr Jack primeiro
-                const stats = await buscarEstatisticasMrJack();
-                exibirEstatisticasMrJack(stats);
+                console.log('Agendamento cancelado:', agendamentoId);
                 
-                // Buscar e exibir tabela diária do Mr Jack
-                await exibirTabelaDiaria();
+                // Remover da lista local
+                todosAgendamentos = todosAgendamentos.filter(ag => ag.id !== agendamentoId);
                 
-                // Buscar agendamentos
-                const agendamentos = await carregarAgendamentosFirebase();
-                
-                // Armazenar globalmente
-                todosAgendamentos = agendamentos;
-                
-                console.log('✅ Agendamentos carregados com sucesso:', agendamentos.length);
-                
-                // Limpar filtro ao recarregar
-                limparFiltro();
-                
-            } catch (error) {
-                console.error('❌ Erro completo:', error);
-                console.error('❌ Stack trace:', error.stack);
-                
-                let errorMessage = error.message;
-                let errorDetails = '';
-                
-                // Identificar tipos específicos de erro
-                if (error.code) {
-                    switch (error.code) {
-                        case 'failed-precondition':
-                            errorMessage = 'Índice necessário não foi criado no Firestore';
-                            errorDetails = 'Clique no link que aparecerá no console para criar o índice automaticamente.';
-                            break;
-                        case 'permission-denied':
-                            errorMessage = 'Permissão negada para acessar o Firestore';
-                            errorDetails = 'Verifique as regras de segurança do Firestore.';
-                            break;
-                        case 'unavailable':
-                            errorMessage = 'Firestore temporariamente indisponível';
-                            errorDetails = 'Tente novamente em alguns segundos.';
-                            break;
-                    }
+                // Reexibir a lista
+                if (dataFiltrada) {
+                    const agendamentosFiltrados = todosAgendamentos.filter(ag => ag.data === dataFiltrada);
+                    exibirAgendamentosAgrupados(agendamentosFiltrados);
+                } else {
+                    exibirAgendamentosAgrupados(todosAgendamentos);
                 }
                 
-                container.innerHTML = `
-                    <div class="error">
-                        <h3>❌ Erro ao carregar agendamentos</h3>
-                        <p><strong>Tipo:</strong> ${error.code || 'Erro desconhecido'}</p>
-                        <p><strong>Mensagem:</strong> ${errorMessage}</p>
-                        ${errorDetails ? `<p><strong>Solução:</strong> ${errorDetails}</p>` : ''}
-                        <hr>
-                        <details style="margin-top: 10px;">
-                            <summary><strong>🔍 Mostrar detalhes técnicos</strong></summary>
-                            <div style="background: #f8f8f8; padding: 15px; margin-top: 10px; border-radius: 4px; font-size: 12px;">
-                                <p><strong>Erro original:</strong> ${error.message}</p>
-                                <p><strong>Código:</strong> ${error.code || 'Não definido'}</p>
-                                <pre style="white-space: pre-wrap; margin-top: 10px;">${error.stack || 'Stack não disponível'}</pre>
-                            </div>
-                        </details>
-                        <div style="margin-top: 15px; padding: 10px; background: #e3f2fd; border-radius: 4px;">
-                            <p><strong>💡 Dica:</strong> Abra o Console do navegador (F12) para ver mais detalhes.</p>
-                        </div>
-                    </div>
-                `;
+                alert('✅ Agendamento cancelado com sucesso!');
+                
+            } catch (error) {
+                console.error('Erro ao cancelar agendamento:', error);
+                alert('❌ Erro ao cancelar agendamento: ' + error.message);
             }
         }
-
-        // Tornar funções globais para os botões
-        window.carregarAgendamentos = carregarAgendamentos;
-        window.gerarPDFDoDia = gerarPDFDoDia;
-        window.filtrarPorData = filtrarPorData;
-        window.limparFiltro = limparFiltro;
-        window.baixarCSVClientes = baixarCSVClientes;
-        window.gerarListaTransmissao = gerarListaTransmissao;
-        window.confirmarAgendamento = confirmarAgendamento;
-
-        // Carregar automaticamente quando a página abrir
-        document.addEventListener('DOMContentLoaded', () => {
-            carregarContador();
-            carregarAgendamentos();
-        });
-    </script>
-</body>
-</html>
+        
+        // Carregar contador do localStorage ao iniciar
+        function carregarContador() {
+            const contadorSalvo = localStorage.getItem('contadorConfirmacoes');
+            if (contadorSalvo) {
+                contadorConfirmacoes = parseInt(contadorSalvo);
+                const displayContador = document.getElementById('contadorDisplay');
+                if (displayContador) {
+                    displayContador.textContent = contadorConfirmacoes;
+                }
+            }
+        }
+        
+        // Função para gerar lista de transmissão do WhatsApp
+        function gerarListaTransmissao(data, agendamentos) {
+            // Formatar data por extenso
+            const dataExtenso = formatarDataExtenso(data);
+            
+            // Criar lista de contatos (apenas números)
+            const telefones = agendamentos
+                .map(ag => ag.telefone.replace(/\D/g, ''))
+                .filter(tel => tel.length >= 10) // Apenas telefones válidos
+                .map(tel => `55${tel}`); // Adicionar código do Brasil
+            
+            if (telefones.length === 0) {
+                alert('❌ Nenhum telefone válido encontrado para este dia.');
+                return;
+            }
+            
+            //
